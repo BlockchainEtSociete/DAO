@@ -11,12 +11,17 @@ const TokenBalance = ({ account }: TokenBalanceProps) => {
 
     useEffect(() => {
         (async () => {
-          if (account) {
+          if (account != '' && account.match(/(\b0x[a-fA-F0-9]{40}\b)/g)) {
             const balance = await contract?.methods?.balanceOf(account).call({from: account})
-
             if (balance) {
-                setTokenBalance(balance)
+              setTokenBalance(balance)
             }
+            else {
+              setTokenBalance(0)
+            }
+          }
+          else {
+            setTokenBalance(0)
           }
         })()
     }, [tokenBalance, setTokenBalance, accounts, contract, account])

@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ipfs from "../Common/Ipfs";
 import TokenBalance from "./TokenBalance";
 import useEthContext from "../../hooks/useEthContext";
 import html2pdf from "../../util/html2pdf";
-import { Button, IconButton, Input, InputLabel, TextField } from "@mui/material";
-import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { Button, InputLabel, TextField } from "@mui/material";
+import EmployeeCardDisplay from "./EmployeeCardDisplay";
 
 const EmployeeCardGenerator = () => {
 
     const { state: { contract, accounts } } = useEthContext()
-
     // manage minting state
     const [minting, setMinting] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -23,6 +22,8 @@ const EmployeeCardGenerator = () => {
     const [, setFile] = useState(null);
     const [wallet, setWallet] = useState('');
     const [, setWalletBalance] = useState(0);
+
+    const [tokenId, setTokenId] = useState('');
 
     const handleFirstNameChange = (event: any) => {
         setFirstName(event.target.value);
@@ -39,27 +40,30 @@ const EmployeeCardGenerator = () => {
     const handlePictureChange = (event: any) => {
         setPictureBase64(event.target.files[0]);
     };
-    const handleWalletAddress = (event: any) => {
+    const handleWalletAddress = async (event: any) => {
         setErrorMessage('');
         setWalletBalance(0);
+        setTokenId('');
+        setWallet(event.target.value);
+
         if (event.target.value != '' && event.target.value.match(/(\b0x[a-fA-F0-9]{40}\b)/g)) {
-            setWallet(event.target.value);
-
-            contract.methods.balanceOf(event.target.value).call({from: accounts[0]}).then((balance: any) => {
-                const userBalance = balance;
-                setWalletBalance(userBalance);
-
-                if (userBalance > 0) {
-                    setErrorMessage('An employee can only have 1 card.');
-                }
-                else {
-                    setErrorMessage('');
-                }
-            })
+            const userBalance = await contract.methods.balanceOf(event.target.value).call({from: accounts[0]})
             .catch((err: Error) => {
                 console.log(err.message);
                 setWalletBalance(0);
-            });
+            })
+
+            setWalletBalance(userBalance);
+
+            if (userBalance > 0) {
+                const tokenId = await contract.methods.getEmployeeCardId(event.target.value).call({from: accounts[0]})
+                setTokenId(tokenId)
+
+                setErrorMessage('An employee can only have 1 card.');
+            }
+            else {
+                setErrorMessage('');
+            }
         }
     }
 
@@ -189,7 +193,8 @@ const EmployeeCardGenerator = () => {
                     .on("transactionHash", async (transactionHash: string   ) => {
                         setSuccessMessage(`Minting in progress, transaction number: Transaction number: ${transactionHash}`);
                     })
-                    .then((response: any) => {
+                    .then((response: string) => {
+                        setTokenId(response);
                         setSuccessMessage(`Minting finished ! :)`);
                     })
                     .catch ((mintErr: Error) => {
@@ -213,6 +218,7 @@ const EmployeeCardGenerator = () => {
             <div style={{margin: '20px'}}>
                 <p>Contract address: {contract._address}</p>
                 <TokenBalance account={wallet} />
+                <EmployeeCardDisplay tokenId={tokenId} />
                 <div className="success_message">{successMessage}</div>
                 <div className="error_message">{errorMessage}</div>
                 <form method="post" id="mintForm" encType="multipart/form-data" onSubmit={validateFormAndMint}>

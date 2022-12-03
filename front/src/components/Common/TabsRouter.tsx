@@ -1,5 +1,4 @@
-import React, { useRef } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import useEthContext from "../../hooks/useEthContext";
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
@@ -30,23 +29,21 @@ const useRouteMatch = (patterns: string[]) => {
 }
 
 const MyTabs = () => {
-  const routeMatch = useRouteMatch(['/', '/employer', '/employee']);
-  const currentTab = routeMatch?.pattern?.path;
+  const routeMatch = useRouteMatch(['/', '/employer', '/employee'])
+  const currentTab = routeMatch?.pattern?.path
 
-  const { state: { accounts, contract, networkID, owner }, dispatch } = useEthContext();
+  const { state: { accounts, owner } } = useEthContext()
 
-  let connectedUser = useRef(accounts[0])
-  let network = useRef(networkID)
+  const [connectedUser, setConnectedUser] = useState('')
 
   useEffect(() => {
-      connectedUser.current = accounts[0]
-      network.current = networkID
-  }, [accounts, connectedUser, contract, dispatch, networkID])
+      setConnectedUser(accounts[0])
+  }, [accounts, setConnectedUser])
 
   return (
     <Tabs value={currentTab}>  
       <Tab label="Home" value='/' to='/' component={Link} />
-    {connectedUser.current === owner &&
+    {connectedUser === owner &&
       <Tab label="Employer" value="/employer" to='/employer' component={Link} />
     }
     <Tab label="Employee" value="/employee" to='/employee' component={Link} />
@@ -55,11 +52,8 @@ const MyTabs = () => {
 }
 
 const TabsRouter = () => {
-  const { state: { accounts } } = useEthContext();
-
   return (
     <Box sx={{ width: '100%' }}>
-      {accounts && accounts[0] &&
       <>
         <MyTabs />
         <p>&nbsp;</p>
@@ -69,7 +63,6 @@ const TabsRouter = () => {
           <Route path='/employee' element={<EmployeePage />} />
         </Routes>
       </>
-      }
     </Box>
   );
 }

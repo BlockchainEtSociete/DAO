@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-// Import of extension for SBT token.
-import "./extensions/ERC721NonTransferable.sol";
+// Import of ERC5484 token standard.
+import "./token/ERC5484/ERC5484.sol";
+
+// Import of ERC5484 consensually approveable and transferable extension.
+import "./token/ERC5484/extensions/ERC5484ConsensuallyApprovableAndTransferable.sol";
+
 // Import of Strings standard
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 // Import of Counter util.
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-// Import ERC721Enumerable standard
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-
-contract EmployeeCard is ERC721NonTransferable {
+contract EmployeeCard is ERC5484ConsensuallyApprovableAndTransferable {
 
   using Counters for Counters.Counter;
 
@@ -41,7 +42,7 @@ contract EmployeeCard is ERC721NonTransferable {
   event EmployeeCardMinted(address employee, uint256 tokenId);
   event VacationRightsCalculated(address employee);
 
-  constructor(string memory name, string memory symbol) ERC721(name, symbol) ERC721NonTransferable() {}
+  constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
     
   /**
    * Gets the URI of the token metadata. Using IPFS URI is highly recommended.
@@ -62,10 +63,12 @@ contract EmployeeCard is ERC721NonTransferable {
   function mint(address _recipient, string calldata _tokenURI, uint256 _startDate) public onlyOwner {
     require(balanceOf(_recipient) == 0, "An employee can only have 1 token");
 
-    uint256 tokenId = this.totalSupply();
-    _safeMint(_recipient, tokenId);
+    uint256 tokenId = _counter.current();
+    _safeMint(_recipient, tokenId, BurnAuth.IssuerOnly, ApproveAuth.IssuerOnly, TransferAuth.IssuerOnly);
 
     require(_exists(tokenId), "ERC721: invalid token ID");
+    _counter.increment();
+
     _cards[_recipient] = tokenId; 
     _cardsData[tokenId] = CardData(_tokenURI, _startDate);
     _approve(owner(), tokenId);
@@ -74,9 +77,20 @@ contract EmployeeCard is ERC721NonTransferable {
   }
 
   /**
+   * Gets the employee card id.
+   * 
+   * @param employee Employee address.
+   */
+  function getEmployeeCardId(address employee) public view returns (uint256) {
+    _requireMinted(_cards[employee]);
+
+    return _cards[employee];
+  }
+
+  /**
    * Calculate total amount of days the employee can expect according to its time in the company.
    * 
-   * @param employee Employee Address.
+   * @param employee Employee address.
    */
    function getEmployeeVacationRights(address employee) public view returns (uint256) {
     _requireMinted(_cards[employee]);
@@ -97,7 +111,7 @@ contract EmployeeCard is ERC721NonTransferable {
  * @param _tokenId Id of the card to transfer.
  * @param _newEmployeeAddress New address of the employee.
  */
-  function transferCard(uint256 _tokenId, address _newEmployeeAddress) public onlyOwner {
+  function transferCard(uint256 _tokenId, address _newEmployeeAddress) external {
     _requireMinted(_tokenId);
 
     address previousOwner = ownerOf(_tokenId);
@@ -109,7 +123,7 @@ contract EmployeeCard is ERC721NonTransferable {
    * 
    * @param _holder Current holder of the card.
    */
-  function burnCard(address _holder) public onlyOwner {
+  function burnCard(address _holder) external {
     uint256 tokenId = _cards[_holder];
     _requireMinted(tokenId);
 
