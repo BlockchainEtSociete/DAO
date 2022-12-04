@@ -3,7 +3,7 @@ const actions = {
   tx: "TRANSACTION",
 }
 
-const initialState: EthContextStateData = {
+const initialState: EthContextState = {
   artifact: null,
   web3: null,
   accounts: [],
@@ -13,7 +13,7 @@ const initialState: EthContextStateData = {
   transactionHash: '',
 };
 
-export interface EthContextStateData {
+export interface EthContextState {
   artifact: any;
   web3: any;
   accounts: any[];
@@ -21,11 +21,6 @@ export interface EthContextStateData {
   contract: any;
   owner: any;
   transactionHash: string;
-}
-
-export interface EthContextState {
-  userId: number;
-  isAdmin: boolean;
 }
 
 export interface EthContextAction {

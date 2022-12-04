@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import ipfs from "../Common/Ipfs";
-import TokenBalance from "./TokenBalance";
-import useEthContext from "../../hooks/useEthContext";
-import html2pdf from "../../util/html2pdf";
 import { Button, InputLabel, TextField } from "@mui/material";
+import { useState } from "react";
+import useEthContext from "../../hooks/useEthContext";
+import ipfs from "../Common/Ipfs";
 import EmployeeCardDisplay from "./EmployeeCardDisplay";
+import EmployeeCardImageGenerator, { generateCardImage } from "./EmployeeCardImageGenerator";
+import TokenBalance from "./TokenBalance";
 
 const EmployeeCardGenerator = () => {
-
     const { state: { contract, accounts } } = useEthContext()
+
     // manage minting state
     const [minting, setMinting] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -21,8 +21,16 @@ const EmployeeCardGenerator = () => {
     const [picture, setPicture] = useState('');
     const [, setFile] = useState(null);
     const [wallet, setWallet] = useState('');
-    const [, setWalletBalance] = useState(0);
+    const [walletBalance, setWalletBalance] = useState(0);
 
+    const [cardInfos, setCardInfos] = useState({
+        firstName: '',
+        lastName: '',
+        birthDate: '',
+        startDate: '',
+        photo: ''
+    });
+    const [cardDataUrl, setCardDataUrl] = useState('');
     const [tokenId, setTokenId] = useState('');
 
     const handleFirstNameChange = (event: any) => {
@@ -46,7 +54,7 @@ const EmployeeCardGenerator = () => {
         setTokenId('');
         setWallet(event.target.value);
 
-        if (event.target.value != '' && event.target.value.match(/(\b0x[a-fA-F0-9]{40}\b)/g)) {
+        if (event.target.value !== '' && event.target.value.match(/(\b0x[a-fA-F0-9]{40}\b)/g)) {
             const userBalance = await contract.methods.balanceOf(event.target.value).call({from: accounts[0]})
             .catch((err: Error) => {
                 console.log(err.message);
@@ -67,7 +75,66 @@ const EmployeeCardGenerator = () => {
         }
     }
 
-    const validateFormAndMint = (event: any) => {
+    const mintCard = async (tokenURI: string, startDate: Date) => {
+        setMinting(true);
+
+        const mintedTokenId = await contract?.methods.mint(wallet, tokenURI, startDate.getTime()/1000).send({from: accounts[0]})
+        .on("transactionHash", async (transactionHash: string   ) => {
+            setSuccessMessage(`Minting in progress, transaction number: Transaction number: ${transactionHash}`);
+        })
+        .catch ((mintErr: Error) => {
+            console.log(mintErr.message);
+            setErrorMessage(`Minting: ${mintErr.message}`);
+
+            setMinting(false);
+
+            return false;
+        });
+
+        setTokenId(mintedTokenId);
+        setSuccessMessage(`Minting finished ! :)`);
+
+        return true;
+    }
+
+    const generateNFTMetadataAndUploadToIpfs = async (imageUri: string, fname: string, lname: string, bdate: string, sdate: string) => {
+        const NFTMetaData = {
+            "description": "Alyra Employee Card", 
+            "external_url": "https://www.alyra.fr", 
+            "image": imageUri, 
+            "name": "Alyra",
+            "attributes": {
+                "firstName": fname,
+                "lastName": lname,
+                "birthDate": bdate,
+                "startDate": sdate,
+            }
+        };
+
+        const splittedSDate: Array<string> = sdate.split('/');
+        const dDateObj: Date = new Date(parseInt(splittedSDate[2]), parseInt(splittedSDate[1]) - 1, parseInt(splittedSDate[0]));
+
+        const metadataString = JSON.stringify(NFTMetaData);
+        const ipfsResponse = await ipfs.add(metadataString, {pin:true}).catch((err: Error) => {
+            console.log(err.message);
+            setErrorMessage(`IPFS: ${err.message}`);
+
+            setMinting(false);
+        });
+
+        if (ipfsResponse) {
+            const tokenURI = 'ipfs://' + ipfsResponse.cid;
+            console.log(tokenURI);
+            
+            const minted = await mintCard(tokenURI, dDateObj);
+
+            console.log(minted);
+        }
+
+        setMinting(false);
+    }
+
+    const validateFormAndMint = async (event: any) => {
         event.preventDefault();
         setMinting(false);
         setErrorMessage('');
@@ -82,12 +149,12 @@ const EmployeeCardGenerator = () => {
             return false;
         }
 
-        if (!firstName || firstName.length == 0) {
+        if (!firstName || firstName.length === 0) {
             alert("Firstname is mandatory");
             return false;
         }
 
-        if (!lastName || lastName.length == 0) {
+        if (!lastName || lastName.length === 0) {
             alert("Lastname is mandatory");
             return false;
         }
@@ -96,7 +163,43 @@ const EmployeeCardGenerator = () => {
             alert("You must upload a picture");
         }
 
-        generateImageCard(firstName, lastName, birthDate, startDate, picture);
+
+        const newCardInfos = {
+            firstName,
+            lastName,
+            birthDate,
+            startDate,
+            photo: picture
+        };
+        setCardInfos(newCardInfos);
+
+        const cardBase64 = await generateCardImage(newCardInfos);
+
+        if (cardBase64 && cardBase64 !== 'data:image/*;' && cardBase64 !== 'data:,') {
+            setCardDataUrl(cardBase64);
+
+            const cardFile = await dataUrlToFile(cardBase64)
+
+            const ipfsImageUploadResult = await ipfs.add(cardFile, {pin:true}).catch((err: Error) => {
+                console.log(err.message);
+                setErrorMessage(`IPFS: ${err.message}`);
+
+                setMinting(false);
+            });
+
+            if (ipfsImageUploadResult) {
+                const imageUri = `ipfs://${ipfsImageUploadResult.cid}`;
+                console.log('ipfs://' + ipfsImageUploadResult.cid);
+
+                generateNFTMetadataAndUploadToIpfs(
+                    imageUri, 
+                    newCardInfos.firstName, 
+                    newCardInfos.lastName, 
+                    newCardInfos.birthDate, 
+                    newCardInfos.startDate
+                );
+            }
+        }
     };
 
     const setPictureBase64 = (file: any) => {
@@ -121,97 +224,6 @@ const EmployeeCardGenerator = () => {
                 return new File([buf], 'card.jpg', {type:'image/*'});
             })
     };
-
-    const generateImageCard = async (fname: string, lname: string, bdate: string, sdate: string, pict: string) => {
-        const employeePicture = document.getElementById('employeePicture');
-        
-        const employeeFirstnameElement = document.getElementById('employeeFirstname')
-        const employeeLastnameElement = document.getElementById('employeeLastname')
-        const employeeBirthdateElement = document.getElementById('employeeBirthdate')
-        const employeeStartdateElement = document.getElementById('employeeStartdate')
-        
-        if (employeePicture)
-            employeePicture.setAttribute('src', 'data:image/*;' + pict);
-
-        if(employeeFirstnameElement)
-            employeeFirstnameElement.innerHTML = fname;
-        if(employeeLastnameElement)
-            employeeLastnameElement.innerHTML = lname;
-        if(employeeBirthdateElement)
-            employeeBirthdateElement.innerHTML = bdate;
-        if (employeeStartdateElement)
-            employeeStartdateElement.innerHTML = sdate;
-
-        const element = document.getElementById('cardPdf');
-        if (element)
-            element.style.display = 'block';
-        
-        var html2pdfWorker = new html2pdf.Worker;
-        html2pdfWorker.from(element).toImg().outputImg('dataurl').then((cardBase64: string) => {            
-            dataUrlToFile(cardBase64)
-            .then((cardFile) => {
-                ipfs.add(cardFile, {pin:true})
-                .then(response => {
-                    const imageUri = `ipfs://${response.cid}`;
-                    console.log('ipfs://' + response.cid);
-
-                    generateNFTMetadataAndUploadToIpfs(imageUri, fname, lname, bdate, sdate);
-                }).catch((err: Error) => {
-                    console.log(err.message);
-                    setErrorMessage(`IPFS: ${err.message}`);
-
-                    setMinting(false);
-                });
-            });
-        });
-    };
-    
-    const generateNFTMetadataAndUploadToIpfs = (imageUri: string, fname: string, lname: string, bdate: string, sdate: string) => {
-        const NFTMetaData = {
-            "description": "Alyra Employee Card", 
-            "external_url": "https://www.alyra.fr", 
-            "image": imageUri, 
-            "name": "Alyra",
-            "attributes": {
-                "firstName": fname,
-                "lastName": lname,
-                "birthDate": bdate,
-                "startDate": sdate,
-            }
-        };
-
-        const splittedSDate: Array<string> = sdate.split('/');
-        const dDateObj: Date = new Date(parseInt(splittedSDate[2]), parseInt(splittedSDate[1]) - 1, parseInt(splittedSDate[0]));
-
-        const metadataString = JSON.stringify(NFTMetaData);
-        ipfs.add(metadataString, {pin:true})
-                .then(response => {
-                    console.log('ipfs://' + response.cid);
-                    setMinting(true);
-                    
-                    contract?.methods.mint(wallet, 'ipfs://' + response.cid, dDateObj.getTime()/1000).send({from: accounts[0]})
-                    .on("transactionHash", async (transactionHash: string   ) => {
-                        setSuccessMessage(`Minting in progress, transaction number: Transaction number: ${transactionHash}`);
-                    })
-                    .then((response: string) => {
-                        setTokenId(response);
-                        setSuccessMessage(`Minting finished ! :)`);
-                    })
-                    .catch ((mintErr: Error) => {
-                        console.log(mintErr.message);
-                        setErrorMessage(`Minting: ${mintErr.message}`);
-    
-                        setMinting(false);
-                    });
-
-                    setMinting(false);
-                }).catch((err: Error) => {
-                    console.log(err.message);
-                    setErrorMessage(`IPFS: ${err.message}`);
-
-                    setMinting(false);
-                });
-    }
 
     return (
         <div>
@@ -242,30 +254,12 @@ const EmployeeCardGenerator = () => {
                         <TextField fullWidth={true} name="picture" type="file" onChange={handlePictureChange} />
                     </div>
                     <div className="form-item" style={{textAlign: 'center'}}>
-                        <Button variant="contained" type="submit" disabled={minting/* || walletBalance > 0*/}>
+                        <Button variant="contained" type="submit" disabled={minting || walletBalance > 0}>
                             Mint your employee card
                         </Button>
                     </div>
                 </form>
-                <div>
-                    <img id="generatedCard"></img>
-                </div>
-                <div id="cardPdf" style={{display: 'none'}}>
-                    <div className="companyLogo">
-                        <img src="/logo.png" alt="Logo" id="companyLogo" />
-                    </div>
-                    <div className="employeePicture">
-                        <div className="picture">
-                            <img src="" alt="picture" id="employeePicture" />
-                        </div>
-                        <div className="employeeCardDetails">
-                            <p id="employeeFirstname"></p>
-                            <p id="employeeLastname"></p>
-                            <p id="employeeBirthdate"></p>
-                            <p id="employeeStartdate"></p>
-                        </div>
-                    </div>
-                </div>
+                <EmployeeCardImageGenerator cardInfos={cardInfos} cardDataUrl={cardDataUrl} />
             </div>
 
             <style>{`
@@ -274,37 +268,6 @@ const EmployeeCardGenerator = () => {
                 }
                 #generatedCard {
                     display: none;
-                }
-                #cardPdf {
-                    display: block;
-                    position: relative;
-                    width: 500px;
-                    height: 200px;
-                    margin: auto;
-                    text-align: left;
-                }
-                #cardPdf .companyLogo > img {
-                    position: absolute;
-                    top: 20px;
-                    left: 30px; 
-                    width: 60px;
-                    height: 60px;
-                }
-                #cardPdf .employeePicture {
-                    float: none;
-                    clear: both;
-                    padding: 50px 0 0 90px;
-                }
-                #cardPdf .employeePicture .picture {
-                    float: left;
-                }
-                #cardPdf .employeePicture .picture > img {
-                    width: 100px;
-                    height: 100px;
-                }
-                #cardPdf .employeeCardDetails {
-                    float: left;
-                    margin-left: 20px;
                 }
                 .error_message {
                     color: red;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import useEthContext from "../../hooks/useEthContext"
-import ipfs, { ipfsGetContent } from "../Common/Ipfs"
+import { ipfsGetContent } from "../Common/Ipfs"
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 
 interface EmployeeCardDisplayProps {
@@ -8,17 +8,17 @@ interface EmployeeCardDisplayProps {
 }
 
 const EmployeeCardDisplay = ({ tokenId }: EmployeeCardDisplayProps ) => {
-    const { state: { web3, contract, accounts } } = useEthContext()
+    const { state: { web3, contract, accounts } } = useEthContext();
 
-    const [cardImage, setCardImage] = useState('')
-    const [cardMetadata, setCardMetadata] = useState({})
+    const [cardImage, setCardImage] = useState('');
+    const [cardMetadata, setCardMetadata] = useState({});
 
     useEffect(() => {
-
-        if (tokenId) {
+        if (tokenId && parseInt(tokenId)) {
             (async () => {
                 const tokenUri: string = await contract.methods.tokenURI(web3.utils.toBN(tokenId)).call({from: accounts[0]})
 
+                console.log(tokenUri);
                 const metadataString = await ipfsGetContent(tokenUri)
                 
                 const metadata = JSON.parse(uint8ArrayToString(metadataString, 'utf8'))
@@ -33,7 +33,7 @@ const EmployeeCardDisplay = ({ tokenId }: EmployeeCardDisplayProps ) => {
 
     return (
         <>
-        {tokenId &&
+        {tokenId && cardImage &&
             <img src={`data:image/*;base64,${cardImage}`} alt="card" style={{height: '200px'}}/>
         }
         </>
