@@ -1,27 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 // Import of ERC5484 token standard.
 import "./token/ERC5484/ERC5484.sol";
 
-// Import of ERC5484 consensually approveable and transferable extension.
-import "./token/ERC5484/extensions/ERC5484ConsensuallyApprovableAndTransferable.sol";
-
-// Import of Strings standard
-import "@openzeppelin/contracts/utils/Strings.sol";
-
-// Import of Counter util.
-import "@openzeppelin/contracts/utils/Counters.sol";
-
-contract EmployeeCard is ERC5484ConsensuallyApprovableAndTransferable {
-
-  using Counters for Counters.Counter;
-
-/**
- * Counter for tokenId.
- */
-  Counters.Counter private _counter;
-
+contract EmployeeCard is ERC5484 {
   /**
    * On chain card data structure.
    */
@@ -53,7 +36,7 @@ contract EmployeeCard is ERC5484ConsensuallyApprovableAndTransferable {
   }
 
   /**
-   * Mint a new employee card SBT token.
+   * Mint a new employee card Consensual SBT token.
    * 
    * @param _recipient Recipient address
    * @param _tokenURI The token URI
@@ -63,17 +46,17 @@ contract EmployeeCard is ERC5484ConsensuallyApprovableAndTransferable {
   function mint(address _recipient, string calldata _tokenURI, uint256 _startDate) public onlyOwner {
     require(balanceOf(_recipient) == 0, "An employee can only have 1 token");
 
-    uint256 tokenId = _counter.current();
-    _safeMint(_recipient, tokenId, BurnAuth.IssuerOnly, ApproveAuth.IssuerOnly, TransferAuth.IssuerOnly);
+    uint256 tokenId = this.totalSupply();
+    _safeMint(_recipient, tokenId, BurnAuth.Both);
 
-    require(_exists(tokenId), "ERC721: invalid token ID");
-    _counter.increment();
+    require(_exists(tokenId), "ERC 5484: token generation failed");
 
     _cards[_recipient] = tokenId; 
     _cardsData[tokenId] = CardData(_tokenURI, _startDate);
-    _approve(owner(), tokenId);
-    
+
     emit EmployeeCardMinted(_recipient, tokenId);
+
+    _approve(owner(), tokenId);
   }
 
   /**
@@ -103,19 +86,6 @@ contract EmployeeCard is ERC5484ConsensuallyApprovableAndTransferable {
     uint256 vacationRights = 25 + nbAdditionalDays;
 
     return vacationRights;
-  }
-
-/**
- * Allows the owner to transfer the card.
- * 
- * @param _tokenId Id of the card to transfer.
- * @param _newEmployeeAddress New address of the employee.
- */
-  function transferCard(uint256 _tokenId, address _newEmployeeAddress) external {
-    _requireMinted(_tokenId);
-
-    address previousOwner = ownerOf(_tokenId);
-    safeTransferFrom(previousOwner, _newEmployeeAddress, _tokenId);
   }
 
   /**
