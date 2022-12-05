@@ -255,7 +255,7 @@ const EmployeeCardGenerator = () => {
                     </div>
                     <div className="form-item" style={{textAlign: 'center'}}>
                         <Button variant="contained" type="submit" disabled={minting || walletBalance > 0}>
-                            Mint your employee card
+                            Mint the employee card
                         </Button>
                     </div>
                 </form>

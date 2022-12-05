@@ -26,7 +26,7 @@ export const generateCardImage = async (cardInfos: EmployeeCardInfos) => {
                     margin:1,
                     unit: 'px',
                     orientation: Landscape,
-                    jsPDF: {format: [100, 100]}
+                    jsPDF: {format: [150, 150]}
                 })
                 .from(element)
                 .toImg()
@@ -53,10 +53,10 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
                         <img src={`data:image/*;${cardInfos.photo}`} alt="picture" id="employeePicture" />
                     </div>
                     <div className="employeeCardDetails">
-                        <p id="employeeFirstname">{cardInfos.firstName}</p>
-                        <p id="employeeLastname">{cardInfos.lastName}</p>
-                        <p id="employeeBirthdate">{cardInfos.birthDate}</p>
-                        <p id="employeeStartdate">{cardInfos.startDate}</p>
+                        <p id="employeeFirstname"><span className="label">Firstname:</span> {cardInfos.firstName}</p>
+                        <p id="employeeLastname"><span className="label">Lastname:</span> {cardInfos.lastName}</p>
+                        <p id="employeeBirthdate"><span className="label">Birth date:</span> {cardInfos.birthDate}</p>
+                        <p id="employeeStartdate"><span className="label">Start date:</span> {cardInfos.startDate}</p>
                     </div>
                 </div>
             </div>  
@@ -67,6 +67,7 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
                     width: 400px;
                     height: 200px;
                     margin: auto;
+                    border: 1px solid black;
                     text-align: left;
                 }
                 #cardPdf .companyLogo > img {
@@ -87,6 +88,9 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
                 #cardPdf .employeePicture .picture > img {
                     width: 100px;
                     height: 100px;
+                }
+                #cardPdf span.label {
+                    font-weight: bold;
                 }
                 #cardPdf .employeeCardDetails {
                     float: left;

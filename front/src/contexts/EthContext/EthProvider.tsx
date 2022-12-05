@@ -43,7 +43,7 @@ const EthProvider = ({ children }: EthProviderProps) => {
   useEffect(() => {
     const tryInit = async () => {
       try {
-        const artifact = require("../../contracts/ganache/EmployeeCard.json");
+        const artifact = require("../../contracts/goerli/EmployeeCard.json");
         init(artifact);
       } catch (err) {
         console.error(err);

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import useEthContext from "../../hooks/useEthContext"
 import { ipfsGetContent } from "../Common/Ipfs"
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { isConstructorDeclaration } from "typescript"
 
 interface EmployeeCardDisplayProps {
     tokenId: string
@@ -14,7 +15,7 @@ const EmployeeCardDisplay = ({ tokenId }: EmployeeCardDisplayProps ) => {
     const [cardMetadata, setCardMetadata] = useState({});
 
     useEffect(() => {
-        if (tokenId && parseInt(tokenId)) {
+        if (tokenId && !isNaN(parseInt(tokenId))) {
             (async () => {
                 const tokenUri: string = await contract.methods.tokenURI(web3.utils.toBN(tokenId)).call({from: accounts[0]})
 
@@ -32,11 +33,11 @@ const EmployeeCardDisplay = ({ tokenId }: EmployeeCardDisplayProps ) => {
     }, [cardImage, setCardImage, cardMetadata, setCardMetadata, contract, accounts, tokenId, web3.utils])
 
     return (
-        <>
+        <div style={{margin: 'auto', width: 400}}>
         {tokenId && cardImage &&
             <img src={`data:image/*;base64,${cardImage}`} alt="card" style={{height: '200px'}}/>
         }
-        </>
+        </div>
     )
 }
 
