@@ -2,9 +2,23 @@ import { Button, InputLabel, TextField } from "@mui/material";
 import { useState } from "react";
 import useEthContext from "../../hooks/useEthContext";
 import ipfs from "../Common/Ipfs";
-import EmployeeCardDisplay from "./EmployeeCardDisplay";
+import EmployeeCardImageDisplay from "./EmployeeCardImageDisplay";
 import EmployeeCardImageGenerator, { generateCardImage } from "./EmployeeCardImageGenerator";
 import TokenBalance from "./TokenBalance";
+
+export interface EmployeeCardMetadata {
+    "description": string; 
+    "external_url": string;
+    "image": string;
+    "name": string;
+    "attributes": {
+        "picture": string;
+        "firstName": string;
+        "lastName": string;
+        "birthDate": string;
+        "startDate": string;
+    }
+}
 
 const EmployeeCardGenerator = () => {
     const { state: { contract, accounts } } = useEthContext()
@@ -97,13 +111,14 @@ const EmployeeCardGenerator = () => {
         return true;
     }
 
-    const generateNFTMetadataAndUploadToIpfs = async (imageUri: string, fname: string, lname: string, bdate: string, sdate: string) => {
-        const NFTMetaData = {
+    const generateNFTMetadataAndUploadToIpfs = async (imageUri: string, pictureUri: string, fname: string, lname: string, bdate: string, sdate: string) => {
+        const NFTMetaData: EmployeeCardMetadata = {
             "description": "Alyra Employee Card", 
             "external_url": "https://www.alyra.fr", 
             "image": imageUri, 
             "name": "Alyra",
             "attributes": {
+                "picture": pictureUri,
                 "firstName": fname,
                 "lastName": lname,
                 "birthDate": bdate,
@@ -170,31 +185,45 @@ const EmployeeCardGenerator = () => {
         };
         setCardInfos(newCardInfos);
 
-        const cardBase64 = await generateCardImage(newCardInfos);
+        const pictureFile = await dataUrlToFile(`data:image/*;${newCardInfos.photo}`)
+        const ipfsPictureUploadResult = await ipfs.add(pictureFile, {pin:true}).catch((err: Error) => {
+            console.log(err.message);
+            setErrorMessage(`IPFS: ${err.message}`);
 
-        if (cardBase64 && cardBase64 !== 'data:image/*;' && cardBase64 !== 'data:,') {
-            setCardDataUrl(cardBase64);
+            setMinting(false);
+        });
 
-            const cardFile = await dataUrlToFile(cardBase64)
+        if (ipfsPictureUploadResult) {
+            const pictureUri = `ipfs://${ipfsPictureUploadResult.cid}`
+            console.log(pictureUri)
 
-            const ipfsImageUploadResult = await ipfs.add(cardFile, {pin:true}).catch((err: Error) => {
-                console.log(err.message);
-                setErrorMessage(`IPFS: ${err.message}`);
+            const cardBase64 = await generateCardImage(newCardInfos)
 
-                setMinting(false);
-            });
+            if (cardBase64 && cardBase64 !== 'data:image/*;' && cardBase64 !== 'data:,') {
+                setCardDataUrl(cardBase64)
 
-            if (ipfsImageUploadResult) {
-                const imageUri = `ipfs://${ipfsImageUploadResult.cid}`;
-                console.log('ipfs://' + ipfsImageUploadResult.cid);
+                const cardFile = await dataUrlToFile(cardBase64)
 
-                generateNFTMetadataAndUploadToIpfs(
-                    imageUri, 
-                    newCardInfos.firstName, 
-                    newCardInfos.lastName, 
-                    newCardInfos.birthDate, 
-                    newCardInfos.startDate
-                );
+                const ipfsImageUploadResult = await ipfs.add(cardFile, {pin:true}).catch((err: Error) => {
+                    console.log(err.message)
+                    setErrorMessage(`IPFS: ${err.message}`)
+
+                    setMinting(false)
+                });
+
+                if (ipfsImageUploadResult) {
+                    const imageUri = `ipfs://${ipfsImageUploadResult.cid}`;
+                    console.log('ipfs://' + ipfsImageUploadResult.cid);
+
+                    generateNFTMetadataAndUploadToIpfs(
+                        imageUri, 
+                        pictureUri,
+                        newCardInfos.firstName, 
+                        newCardInfos.lastName, 
+                        newCardInfos.birthDate, 
+                        newCardInfos.startDate
+                    );
+                }
             }
         }
     };
@@ -227,7 +256,7 @@ const EmployeeCardGenerator = () => {
             <div style={{margin: '20px'}}>
                 <p>Contract address: {contract._address}</p>
                 <TokenBalance account={wallet} />
-                <EmployeeCardDisplay tokenId={tokenId} />
+                <EmployeeCardImageDisplay tokenId={tokenId} />
                 <div className="success_message">{successMessage}</div>
                 <div className="error_message">{errorMessage}</div>
                 <form method="post" id="mintForm" encType="multipart/form-data" onSubmit={validateFormAndMint}>

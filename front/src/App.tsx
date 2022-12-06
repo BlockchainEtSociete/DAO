@@ -1,17 +1,24 @@
 import './App.css';
 import { BrowserRouter as Router } from 'react-router-dom';
 import EthProvider from './contexts/EthContext/EthProvider';
-import TabsRouter from './components/Common/TabsRouter';
+import WorkIDTabs from './components/Common/WorkIDTabs';
 import Header from './components/Common/Header';
+import { createTheme, ThemeProvider } from '@mui/material';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 function App() {
   return (
-    <EthProvider>
-      <Header />
-      <Router>
-        <TabsRouter />
-      </Router>
-    </EthProvider>
+    <ThemeProvider theme={darkTheme}>
+      <EthProvider>
+        <Header />
+        <WorkIDTabs />
+      </EthProvider>
+    </ThemeProvider>
   );
 }
 

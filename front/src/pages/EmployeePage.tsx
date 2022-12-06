@@ -1,7 +1,7 @@
 import { Box } from "@mui/material"
 import { useEffect, useState } from "react";
-import EmployeeCardDisplay from "../components/EmployeeCard/EmployeeCardDisplay";
-import EmployeeVacancyRights from "../components/EmployeeCard/EmployeeVacancyRights"
+import { getRPCErrorMessage } from "../components/Common/error";
+import EmployeeCardProfile from "../components/EmployeeCard/EmployeeCardProfile";
 import useEthContext from "../hooks/useEthContext";
 
 const EmployeePage = () => {
@@ -11,15 +11,19 @@ const EmployeePage = () => {
 
     useEffect(() => {
         (async () => {
-            const foundTokenId = await contract.methods.getEmployeeCardId(accounts[0]).call({from: accounts[0]})
-            setTokenId(foundTokenId)
+            try {
+                const foundTokenId = await contract.methods.getEmployeeCardId(accounts[0]).call({from: accounts[0]})
+                setTokenId(foundTokenId)
+            }
+            catch (e) {
+                console.log(getRPCErrorMessage(e));
+            }
         })()
     }, [accounts, contract, setTokenId])
 
     return (
         <Box sx={{margin: '20px'}}>
-            {tokenId && <EmployeeCardDisplay tokenId={tokenId} /> }
-            <EmployeeVacancyRights />
+            <EmployeeCardProfile tokenId={tokenId} />
         </Box>
     )
 }

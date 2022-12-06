@@ -20,13 +20,13 @@ export const generateCardImage = async (cardInfos: EmployeeCardInfos) => {
         if (element) {
             element.style.display = 'block';
 
-            const html2pdfWorker = new html2pdf.Worker;
+            const html2pdfWorker = new html2pdf.Worker();
             const cardDataUrl = await html2pdfWorker
                 .set({
                     margin:1,
                     unit: 'px',
                     orientation: Landscape,
-                    jsPDF: {format: [150, 150]}
+                    jsPDF: {format: [200, 200]}
                 })
                 .from(element)
                 .toImg()
@@ -50,7 +50,7 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
                 </div>
                 <div className="employeePicture">
                     <div className="picture">
-                        <img src={`data:image/*;${cardInfos.photo}`} alt="picture" id="employeePicture" />
+                        <img src={`data:image/*;${cardInfos.photo}`} alt="Employee" id="employeePicture" />
                     </div>
                     <div className="employeeCardDetails">
                         <p id="employeeFirstname"><span className="label">Firstname:</span> {cardInfos.firstName}</p>

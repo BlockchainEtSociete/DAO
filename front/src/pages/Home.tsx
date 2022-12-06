@@ -1,12 +1,12 @@
 const Home = () => {
 
     return (
-        <div style={{margin: '20px'}}>
+        <div>
              <h1>
-                Welcome to Employee card generator
+                Welcome to WorkID
             </h1>
 
-            <p>Welcome to your employee card management tool</p>
+            <p>Your work decentralized identity and proof of experience</p>
         </div>
     )
 }
