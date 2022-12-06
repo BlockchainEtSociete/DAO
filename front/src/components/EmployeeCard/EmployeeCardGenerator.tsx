@@ -75,10 +75,10 @@ const EmployeeCardGenerator = () => {
         }
     }
 
-    const mintCard = async (tokenURI: string, startDate: Date) => {
+    const mintCard = async (tokenURI: string) => {
         setMinting(true);
 
-        const mintedTokenId = await contract?.methods.mint(wallet, tokenURI, startDate.getTime()/1000).send({from: accounts[0]})
+        const mintedTokenId = await contract?.methods.mint(wallet, tokenURI).send({from: accounts[0]})
         .on("transactionHash", async (transactionHash: string   ) => {
             setSuccessMessage(`Minting in progress, transaction number: Transaction number: ${transactionHash}`);
         })
@@ -111,9 +111,6 @@ const EmployeeCardGenerator = () => {
             }
         };
 
-        const splittedSDate: Array<string> = sdate.split('/');
-        const dDateObj: Date = new Date(parseInt(splittedSDate[2]), parseInt(splittedSDate[1]) - 1, parseInt(splittedSDate[0]));
-
         const metadataString = JSON.stringify(NFTMetaData);
         const ipfsResponse = await ipfs.add(metadataString, {pin:true}).catch((err: Error) => {
             console.log(err.message);
@@ -126,7 +123,7 @@ const EmployeeCardGenerator = () => {
             const tokenURI = 'ipfs://' + ipfsResponse.cid;
             console.log(tokenURI);
             
-            const minted = await mintCard(tokenURI, dDateObj);
+            const minted = await mintCard(tokenURI);
 
             console.log(minted);
         }
