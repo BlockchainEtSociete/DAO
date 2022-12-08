@@ -1,4 +1,4 @@
-import { Button, InputLabel, TextField } from "@mui/material";
+import { Button, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { useState } from "react";
 import useEthContext from "../../hooks/useEthContext";
 import ipfs from "../Common/Ipfs";
@@ -11,13 +11,48 @@ export interface EmployeeCardMetadata {
     "external_url": string;
     "image": string;
     "name": string;
-    "attributes": {
-        "picture": string;
-        "firstName": string;
-        "lastName": string;
-        "birthDate": string;
-        "startDate": string;
-    }
+    "attributes": [
+        {
+            "trait_type": "Picture",
+            "value": string;
+        },
+        {
+            "trait_type": "Firstname",
+            "value": string;
+        },
+        {
+            "trait_type": "Lastname",
+            "value": string;
+        },
+        {
+            "trait_type": "Role",
+            "value": string;
+        },
+        {
+            "trait_type": "Service",
+            "value": string;
+        },
+        {
+            "trait_type": "Contract type",
+            "value": string;
+        },
+        {
+            "trait_type": "Contract category",
+            "value": string;
+        },
+        {
+            "trait_type": "Birth date",
+            "value": string;
+        },
+        {
+            "trait_type": "Start date",
+            "value": string;
+        },
+        {
+            "trait_type": "End date",
+            "value": string;
+        }
+    ]
 }
 
 const EmployeeCardGenerator = () => {
@@ -32,6 +67,10 @@ const EmployeeCardGenerator = () => {
     const [lastName, setLastName] = useState('');
     const [birthDate, setBirthDate] = useState('');
     const [startDate, setStartDate] = useState('');
+    const [service, setService] = useState('');
+    const [role, setRole] = useState('');
+    const [contractType, setContractType] = useState('');
+    const [contractCategory, setContractCategory] = useState('');
     const [picture, setPicture] = useState('');
     const [, setFile] = useState(null);
     const [wallet, setWallet] = useState('');
@@ -59,6 +98,18 @@ const EmployeeCardGenerator = () => {
     const handleStartDateChange = (event: any) => {
         setStartDate(event.target.value);
     };
+    const handleServiceChange = (event: any) => {
+        setService(event.target.value);
+    }
+    const handleRoleChange = (event: any) => {
+        setRole(event.target.value);
+    }
+    const handleContractTypeChange = (event: any) => {
+        setContractType(event.target.value);
+    }
+    const handleContractCategoryChange = (event: any) => {
+        setContractCategory(event.target.value);
+    }
     const handlePictureChange = (event: any) => {
         setPictureBase64(event.target.files[0]);
     };
@@ -111,19 +162,59 @@ const EmployeeCardGenerator = () => {
         return true;
     }
 
-    const generateNFTMetadataAndUploadToIpfs = async (imageUri: string, pictureUri: string, fname: string, lname: string, bdate: string, sdate: string) => {
+    const generateNFTMetadataAndUploadToIpfs = async (
+        imageUri: string, 
+        pictureUri: string, 
+        newCardInfos: any,
+    ) => {
         const NFTMetaData: EmployeeCardMetadata = {
-            "description": "Alyra Employee Card", 
+            "description": "Professional decentralized identity and proof of experience.", 
             "external_url": "https://www.alyra.fr", 
             "image": imageUri, 
-            "name": "Alyra",
-            "attributes": {
-                "picture": pictureUri,
-                "firstName": fname,
-                "lastName": lname,
-                "birthDate": bdate,
-                "startDate": sdate,
-            }
+            "name": "Alyra Employee Card",
+            "attributes": [
+                {
+                    "trait_type": "Picture",
+                    "value": pictureUri,
+                },
+                {
+                    "trait_type": "Firstname",
+                    "value": newCardInfos.firstName,
+                },
+                {
+                    "trait_type": "Lastname",
+                    "value": newCardInfos.lastName,
+                },
+                {
+                    "trait_type": "Role",
+                    "value": newCardInfos.role,
+                },
+                {
+                    "trait_type": "Service",
+                    "value": newCardInfos.service,
+                },
+                {
+                    "trait_type": "Contract type",
+                    "value": newCardInfos.contractType,
+                },
+                {
+                    "trait_type": "Contract category",
+                    "value": newCardInfos.contractCategory,
+                },
+                {
+                    "trait_type": "Birth date",
+                    "value": newCardInfos.birthDate,
+                },
+                {
+                    "trait_type": "Start date",
+                    "value": newCardInfos.startDate,
+                },
+                {
+                    "trait_type": "End date",
+                    "value": '',
+                },
+                
+            ]
         };
 
         const metadataString = JSON.stringify(NFTMetaData);
@@ -181,6 +272,10 @@ const EmployeeCardGenerator = () => {
             lastName,
             birthDate,
             startDate,
+            service,
+            role,
+            contractType,
+            contractCategory,
             photo: picture
         };
         setCardInfos(newCardInfos);
@@ -218,10 +313,7 @@ const EmployeeCardGenerator = () => {
                     generateNFTMetadataAndUploadToIpfs(
                         imageUri, 
                         pictureUri,
-                        newCardInfos.firstName, 
-                        newCardInfos.lastName, 
-                        newCardInfos.birthDate, 
-                        newCardInfos.startDate
+                        newCardInfos
                     );
                 }
             }
@@ -273,7 +365,27 @@ const EmployeeCardGenerator = () => {
                         <TextField fullWidth={true} name="birthdate" label="Birth date" onChange={handleBirthDateChange}></TextField>
                     </div>
                     <div className="form-item">
-                        <TextField fullWidth={true} name="startdate" label="Start date in the company" onChange={handleStartDateChange}></TextField>
+                        <TextField fullWidth={true} name="startdate" label="Start date" onChange={handleStartDateChange}></TextField>
+                    </div>
+                    <div className="form-item">
+                        <TextField fullWidth={true} name="service" label="Service" onChange={handleServiceChange}></TextField>
+                    </div>
+                    <div className="form-item">
+                        <TextField fullWidth={true} name="role" label="Role" onChange={handleRoleChange}></TextField>
+                    </div>
+                    <div className="form-item">
+                        <Select fullWidth={true} name="contract_type" label="Contract type" onChange={handleContractTypeChange}>
+                            <MenuItem value={'CDI'}>CDI</MenuItem>
+                            <MenuItem value={'CDD'}>CDD</MenuItem>
+                            <MenuItem value={'Freelance'}>Freelance</MenuItem>
+                            <MenuItem value={'Interim'}>Interim</MenuItem>
+                        </Select>
+                    </div>
+                    <div className="form-item">
+                        <Select fullWidth={true} name="contract_category" label="Contract category" onChange={handleContractCategoryChange}>
+                            <MenuItem value={'Employee'}>Employee</MenuItem>
+                            <MenuItem value={'Executive'}>Executive</MenuItem>
+                        </Select>
                     </div>
                     <div className="form-item">
                         <InputLabel>Photo</InputLabel>
