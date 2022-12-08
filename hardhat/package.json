@@ -1,6 +1,18 @@
 {
   "name": "WorkID",
   "license": "MIT",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npx hardhat compile",
+    "dev": "npx hardhat node --network hardhat",
+    "deploy:hardhat": "npx hardhat --network localhost deploy",
+    "deploy:dev": "npx hardhat --network ganache deploy",
+    "deploy:goerli": "npx hardhat --network goerli deploy",
+    "deploy:sepolia": "npx hardhat --network sepolia deploy",
+    "deploy:mumbai": "npx hardhat --network mumbai deploy",
+    "test": "npx hardhat test --network hardhat",
+    "coverage": "npx hardhat coverage --network hardhat"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.4",
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",
@@ -18,10 +30,9 @@
     "solidity-coverage": "^0.8.2",
     "ts-node": "^10.9.1",
     "typechain": "^8.1.1",
-    "typescript": "^4.9.3"
-  },
-  "dependencies": {
+    "typescript": "^4.9.3",
+    "dotenv": "^16.0.3",
     "@openzeppelin/contracts": "^4.8.0",
-    "dotenv": "^16.0.3"
+    "@primitivefi/hardhat-dodoc": "^0.2.3"
   }
 }

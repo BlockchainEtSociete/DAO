@@ -4,6 +4,9 @@ pragma solidity 0.8.17;
 // Import of ERC5484 token standard.
 import "./token/ERC5484/ERC5484.sol";
 
+/// @title An SBT for professionnal decentralized identity and proof of experience.
+/// @author Bertrand Presles
+/// @notice You can use this contract to generate digital ids for your employees that can also be used as proof of their work in your company
 contract EmployeeCard is ERC5484 {
 
   // Mapping for token URIs
@@ -17,53 +20,45 @@ contract EmployeeCard is ERC5484 {
 
   constructor(string memory name, string memory symbol) ERC5484(name, symbol) {}
 
-  /**
-    * @dev Returns an URI for a given token ID
-    * Throws if the token ID does not exist. May return an empty string.
-    * @param tokenId uint256 ID of the token to query
-    */
+  /// @notice Gets the token URI for the passed token id.
+  /// @dev Returns an URI for a given token ID. Revert if the token ID does not exist. May return an empty string.
+  /// @param tokenId uint256 ID of the token to query
+  /// @return string The token URI 
   function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
       require(_exists(tokenId));
       return _tokenURIs[tokenId];
   }
 
-  /**
-    * @dev Internal function to set the token URI for a given token
-    * Reverts if the token ID does not exist
-    * @param tokenId uint256 ID of the token to set its URI
-    * @param uri string URI to assign
-    */
+  /// @notice Sets a token URI for a given token id.
+  /// @dev Internal function to set the token URI for a given token. Reverts if the token ID does not exist
+  /// @param tokenId uint256 ID of the token to set its URI
+  /// @param uri string URI to assign
   function _setTokenURI(uint256 tokenId, string memory uri) internal {
       require(_exists(tokenId));
       _tokenURIs[tokenId] = uri;
   }
 
-  /**
-   * Mint a new employee card Consensual SBT token.
-   * 
-   * @param recipient Recipient address
-   * @param tokenURI The token URI
-   * 
-   */
-  function mint(address recipient, string calldata tokenURI) public onlyOwner {
-    require(balanceOf(recipient) == 0, "An employee can only have 1 token");
+  /// @notice Mint a new employee card Consensual SBT token.
+  /// @param _recipient Recipient address.
+  /// @param _tokenURI The token URI.
+  /// emit EmployeeCardMinted event when card is minted.
+  function mint(address _recipient, string calldata _tokenURI) public onlyOwner {
+    require(balanceOf(_recipient) == 0, "An employee can only have 1 token");
 
     uint256 tokenId = this.totalSupply();
-    _safeMint(recipient, tokenId, BurnAuth.Both);
+    _safeMint(_recipient, tokenId, BurnAuth.Both);
 
     require(_exists(tokenId), "EmployeeCard: token generation failed");
-    _setTokenURI(tokenId, tokenURI);
+    _setTokenURI(tokenId, _tokenURI);
 
-    emit EmployeeCardMinted(recipient, tokenId);
+    emit EmployeeCardMinted(_recipient, tokenId);
 
     _approve(owner(), tokenId);
   }
 
-  /**
-   * Gets the employee card id.
-   * 
-   * @param employee Employee address.
-   */
+  /// @notice Gets the employee card id.
+  /// @param employee Employee address.
+  /// @return uint256 The employee card id.
   function getEmployeeCardId(address employee) public view returns (uint256) {
     uint256 employeeTokenId = tokenOfOwnerByIndex(employee, 0);
     _requireMinted(employeeTokenId);
@@ -71,11 +66,8 @@ contract EmployeeCard is ERC5484 {
     return employeeTokenId;
   }
 
-  /**
-   * Burn a card.
-   * 
-   * @param employee Current holder of the card.
-   */
+  /// @notice Burns a card.
+  /// @param employee Current holder of the card.
   function burnCard(address employee) external onlyOwner {
     uint256 employeeTokenId = tokenOfOwnerByIndex(employee, 0);
     _requireMinted(employeeTokenId);
@@ -88,13 +80,12 @@ contract EmployeeCard is ERC5484 {
     }
   }
 
-  /**
-   * Only the owner should be able to add tokens to this contract.
-   */
+  /// @notice Receive function to allow to receive tokens.
   receive() external payable onlyOwner {
     emit TokenReceived(msg.sender, msg.value);
   }
 
+  /// @notice Fallback function to track unknown received calls.
   fallback() external payable onlyOwner {
     emit CallReceived(msg.sender, msg.value, msg.data);
   }

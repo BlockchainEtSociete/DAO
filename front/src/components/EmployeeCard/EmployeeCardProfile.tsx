@@ -9,11 +9,22 @@ interface EmployeeCardDisplayProps {
     tokenId: string
 }
 
+interface EmployeeProfile {
+    firstName: string;
+    lastName: string;
+    picture?: string;
+    birthDate: string;
+    startDate: string;
+    service: string;
+    role: string;
+    contractType: string;
+    contractCategory: string;
+}
+
 const EmployeeCardProfile = ({ tokenId }: EmployeeCardDisplayProps ) => {
     const { state: { web3, contract, accounts } } = useEthContext();
 
-    const [cardImage, setCardImage] = useState('');
-    const [cardMetadata, setCardMetadata]: EmployeeCardMetadata | any = useState(null);
+    const [employeeProfile, setEmployeeProfile]: EmployeeProfile | any = useState(null);
 
     useEffect(() => {
         if (tokenId && !isNaN(parseInt(tokenId))) {
@@ -31,16 +42,29 @@ const EmployeeCardProfile = ({ tokenId }: EmployeeCardDisplayProps ) => {
                 if (tokenUri) {
                     const metadataString = await ipfsGetContent(tokenUri)
                     const metadata = JSON.parse(uint8ArrayToString(metadataString, 'utf8'))
-                    setCardMetadata(metadata)
-
-                    if (metadata.attributes.picture) {
-                        const pictureContent = await ipfsGetContent(metadata.attributes.picture)
-                        setCardImage(uint8ArrayToString(pictureContent, 'base64'))
+                    
+                    const employeeProfileData: EmployeeProfile = {
+                        firstName: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Firstname').value,
+                        lastName: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Lastname').value,
+                        birthDate: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Birth date').value,
+                        startDate: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Start date').value,
+                        service: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Service').value,
+                        role: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Role').value,
+                        contractType: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Contract type').value,
+                        contractCategory: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Contract category').value
                     }
+
+                    const pictureAttribute = metadata.attributes.find((attribute: any) => attribute.trait_type === 'Picture');
+                    if (pictureAttribute) {
+                        const pictureContent = await ipfsGetContent(pictureAttribute.value)
+                        employeeProfileData.picture = uint8ArrayToString(pictureContent, 'base64')
+                    }
+
+                    setEmployeeProfile(employeeProfileData)
                 }
             })()
         }
-    }, [accounts, cardImage, contract, tokenId, web3])
+    }, [accounts, contract, tokenId, web3])
 
     return (
         <div style={{margin: 'auto', width: 400}}>
@@ -49,13 +73,17 @@ const EmployeeCardProfile = ({ tokenId }: EmployeeCardDisplayProps ) => {
                 <p>You've no employee card</p>
             </div>
         }
-        {tokenId && cardMetadata &&
+        {tokenId && employeeProfile &&
             <div>
-                <p>Welcome {cardMetadata.attributes.firstName} {cardMetadata.attributes.lastName}</p>
+                <p>Welcome {employeeProfile.firstName} {employeeProfile.lastName}</p>
                 <p style={{fontWeight: 'bold'}}>Your profile informations: </p>
-                {cardImage && <img src={`data:image/*;base64,${cardImage}`} alt="Employee" style={{height: '100px'}}/>}
-                <p>Birth date: {cardMetadata.attributes.birthDate}</p>
-                <p>Start date: {cardMetadata.attributes.startDate}</p>
+                {employeeProfile.picture && <img src={`data:image/*;base64,${employeeProfile.picture}`} alt="Employee" style={{height: '100px'}}/>}
+                <div>Birth date: {employeeProfile.birthDate}</div>
+                <div>Start date: {employeeProfile.startDate}</div>
+                <div>Service: {employeeProfile.service}</div>
+                <div>Role: {employeeProfile.role}</div>
+                <div>Contract type: {employeeProfile.contractType}</div>
+                <div>Contract category: {employeeProfile.contractCategory}</div>
             </div>
         }
         </div>

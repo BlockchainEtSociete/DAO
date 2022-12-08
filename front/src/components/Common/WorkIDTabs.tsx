@@ -7,6 +7,7 @@ import useEthContext from "../../hooks/useEthContext";
 import EmployeePage from "../../pages/EmployeePage";
 import Home from "../../pages/Home";
 import EmployeeCardGenerator from "../EmployeeCard/EmployeeCardGenerator";
+import EmployeeCardList from "../EmployeeCard/EmployeeCardsList";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -73,16 +74,14 @@ const WorkIDTabs = () => {
             sx={{ borderRight: 1, borderColor: 'divider' }}
           >  
             <Tab label="Home" {...a11yProps(0)}  />
-            {connectedUser === owner &&
-            <Tab label="Employer" {...a11yProps(1)}  />
-            }
-            <Tab label="Employee" {...a11yProps(connectedUser === owner ? 2 : 1)}  />
+            {connectedUser === owner && <Tab label="Employer" {...a11yProps(1)}  />}
+            {connectedUser === owner && <Tab label="Employees list" {...a11yProps(2)} />}
+            <Tab label="Employee" {...a11yProps(connectedUser === owner ? 3 : 1)}  />
           </Tabs>
           <TabPanel value={value} index={0}><Home /></TabPanel>
-          {connectedUser === owner &&
-          <TabPanel value={value} index={1}><EmployeeCardGenerator /></TabPanel>
-          }
-          <TabPanel value={value} index={connectedUser === owner ? 2 : 1}><EmployeePage /></TabPanel>
+          {connectedUser === owner && <TabPanel value={value} index={1}><EmployeeCardGenerator /></TabPanel>}
+          {connectedUser === owner && <TabPanel value={value} index={2}><EmployeeCardList /></TabPanel>}
+          <TabPanel value={value} index={connectedUser === owner ? 3 : 1}><EmployeePage /></TabPanel>
       </Box>
     </>
   );

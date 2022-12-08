@@ -1,4 +1,4 @@
-import "EmployeeCardTile.styles.css"
+import "./EmployeeCardTile.styles.css"
 
 interface EmployeeCardTileProps {
     picture: string;
@@ -13,7 +13,7 @@ const EmployeeCardTile = ({ picture, lastname, firstname, service, role }: Emplo
         <>
             <figure className="tile">
                 <div className="tileIcon">
-                    <img src={picture} alt={firstname + ' ' + lastname} className="tileIconImage" />           
+                    <img src={`data:image/*;base64,${picture}`} alt={firstname + ' ' + lastname} className="tileIconImage" />           
                 </div>
                 <div className="tileLabel">
                     <div>Name: {lastname}</div>

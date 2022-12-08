@@ -374,7 +374,8 @@ const EmployeeCardGenerator = () => {
                         <TextField fullWidth={true} name="role" label="Role" onChange={handleRoleChange}></TextField>
                     </div>
                     <div className="form-item">
-                        <Select fullWidth={true} name="contract_type" label="Contract type" onChange={handleContractTypeChange}>
+                        <InputLabel id="contract-type-label">Contract type</InputLabel>
+                        <Select fullWidth={true} name="contract_type" labelId="contract-type-label" label="Contract type" onChange={handleContractTypeChange}>
                             <MenuItem value={'CDI'}>CDI</MenuItem>
                             <MenuItem value={'CDD'}>CDD</MenuItem>
                             <MenuItem value={'Freelance'}>Freelance</MenuItem>
@@ -382,7 +383,8 @@ const EmployeeCardGenerator = () => {
                         </Select>
                     </div>
                     <div className="form-item">
-                        <Select fullWidth={true} name="contract_category" label="Contract category" onChange={handleContractCategoryChange}>
+                        <InputLabel id="contract-type-label">Contract category</InputLabel>
+                        <Select fullWidth={true} name="contract_category" labelId="contract-category-label" label="Contract category" onChange={handleContractCategoryChange}>
                             <MenuItem value={'Employee'}>Employee</MenuItem>
                             <MenuItem value={'Executive'}>Executive</MenuItem>
                         </Select>

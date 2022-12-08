@@ -9,20 +9,20 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./IERC5484.sol";
 
-/**
- * @dev Implements EIP-5484: Consensual Soulboynd Tokens - https://eips.ethereum.org/EIPS/eip-5484
- */
-contract ERC5484 is IERC5484, ERC721Enumerable, Ownable {
+/// @title You can extends this contract to implement Consensual SBTs.
+/// @author Bertrand Presles.
+/// @notice An implementation of Consensual Soulbound Token.
+/// @dev Implements EIP-5484: Consensual Soulbound Tokens - https://eips.ethereum.org/EIPS/eip-5484
+abstract contract ERC5484 is IERC5484, ERC721Enumerable, Ownable {
 
     /// @notice Mapping to store burn authorizations for each token issued.
     mapping (uint256 => BurnAuth) burnAuths;
 
     /// @notice Constructor of ERC5484.
-    constructor (string memory name, string memory symbol) public ERC721(name, symbol) {}
+    constructor (string memory name, string memory symbol) ERC721(name, symbol) {}
 
-    
-     /// @dev Same as {xref-ERC5484-_safeMint-address-uint256-BurnAuth-}[`_safeMint`], with an additional `data` parameter which is
-     /// forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
+    /// @notice Safely mint the SBT.
+    /// @dev Same as {xref-ERC5484-_safeMint-address-uint256-BurnAuth-}[`_safeMint`], with an additional `data` parameter which is forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
     function _safeMint(
         address to,
         uint256 tokenId,
@@ -35,24 +35,26 @@ contract ERC5484 is IERC5484, ERC721Enumerable, Ownable {
         emit Issued(_msgSender(), to, tokenId, tokenBurnAuth);
     }
 
-    /**
-     * @dev Safely mints `tokenId` and transfers it to `to`.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must not exist.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-     *
-     * Emits a {Transfer} event.
-     * Emits a {Issued} event.
-     */
+    /// @notice Safely mints `tokenId` and transfers it to `to` with `tokenBurnAuth` burn policy.
+    /// @dev Prefer use this function than the _mint() one.
+    ///
+    /// Requirements:
+    ///
+    /// - `tokenId` must not exist.
+    /// - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+    /// 
+    /// Emits a {Transfer} event.
+    /// Emits a {Issued} event.
+    ///
+    /// @param to The recipient address.
+    /// @param tokenId The token id to mint.
+    /// @param tokenBurnAuth The burn policy to apply for this token.
     function _safeMint(address to, uint256 tokenId, BurnAuth tokenBurnAuth) internal virtual {
         _safeMint(to, tokenId, tokenBurnAuth, "");
     }
 
-    /**
-     * @dev Transfer is forbidden for ERC 5484 tokens by default.
-     */
+    /// @notice Forbid transfer for SBTs.
+    /// @dev Transfer is forbidden for ERC 5484 tokens. Reverts systematically.
     function _transfer(
         address from,
         address to,
@@ -60,17 +62,14 @@ contract ERC5484 is IERC5484, ERC721Enumerable, Ownable {
     ) internal override virtual {
         revert("ERC 5484: Transfer is not allowed");
     }
-
-  /**
-   * @dev Ensure that burn is only accepted for contract owner. 
-   * 
-   * Requirements:
-   * 
-   * - `msg.sender` should be the one defined by the burn auth rule.
-   * - `tokenId` must exists
-   * 
-   * @param tokenId The token id to burn.
-   */
+    
+    /// @notice Ensure that burn is only allowed if it complies with the burn policy of the token.
+    /// @dev Requirements:
+    /// 
+    /// - `msg.sender` should be the one defined by the burn auth rule.
+    /// - `tokenId` must exists
+    /// 
+    /// @param tokenId The token id to burn.
     function _burn(uint256 tokenId) internal virtual override {
         // Implements check on burn auths for burn allowance.
         if (burnAuths[tokenId] == BurnAuth.Neither) {
@@ -89,9 +88,9 @@ contract ERC5484 is IERC5484, ERC721Enumerable, Ownable {
         ERC721._burn(tokenId);
     }
 
-    /**
-     * @dev Gets the burn authorization information for this token.
-     */
+    /// @notice Gets the burn authorization information for this token.
+    /// @param tokenId The token Id.
+    /// @return BurnAuth The burn policy for the token.
     function burnAuth(
         uint256 tokenId
     ) external view returns (BurnAuth) {

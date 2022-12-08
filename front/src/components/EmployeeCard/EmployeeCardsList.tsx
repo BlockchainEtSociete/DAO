@@ -6,6 +6,14 @@ import { getRPCErrorMessage } from "../Common/error"
 import { ipfsGetContent } from "../Common/Ipfs"
 import EmployeeCardTile from "./EmployeeCardTile"
 
+interface EmployeeTileData {
+    firstName: string;
+    lastName: string;
+    picture?: string;
+    service: string;
+    role: string;
+}
+
 const EmployeeCardList = () => {
     const { state: { contract, accounts } } = useEthContext()
 
@@ -21,19 +29,21 @@ const EmployeeCardList = () => {
                     const metadataString = await ipfsGetContent(employeeCardURI)
                     const metadata = JSON.parse(uint8ArrayToString(metadataString, 'utf8'))
 
-                    let pictureContent: string = ''
-                    if (metadata.attributes.picture) {
-                        const pictureFile = await ipfsGetContent(metadata.attributes.picture)
+                    const employeeProfileData: EmployeeTileData = {
+                        firstName: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Firstname').value,
+                        lastName: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Lastname').value,
+                        service: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Service').value,
+                        role: metadata.attributes.find((attribute: any) => attribute.trait_type === 'Role').value,
+                    }
+
+                    const pictureAttribute = metadata.attributes.find((attribute: any) => attribute.trait_type === 'Picture');
+                    if (pictureAttribute) {
+                        const pictureFile = await ipfsGetContent(pictureAttribute.value)
                         const pictureBase64 = uint8ArrayToString(pictureFile, 'base64')
-                        pictureContent = `data:image/*;base64,${pictureBase64}`
+                        employeeProfileData.picture = pictureBase64
                     }
                     const employeeCardInfos: any = {}
-                    employeeCardInfos[employeeCardId] = {
-                        ...metadata,
-                        attributes: {
-                            picture: pictureContent
-                        }
-                    }
+                    employeeCardInfos[employeeCardId] = employeeProfileData
                     setEmployeeCards((current: any) => ({...current, ...employeeCardInfos}));
                 }
             }
@@ -69,24 +79,24 @@ const EmployeeCardList = () => {
     })
 
     return (
-        <Box sx={{ width: '100%' }}>
-            {employeeCards && Object.keys(employeeCards).length > 0 &&
-            <>
-            {(Object.keys(employeeCards)).map((employeeCardId: string) => {
-                return (
-                    <EmployeeCardTile 
-                        key={employeeCardId} 
-                        picture={employeeCards[employeeCardId].picture}
-                        lastname={employeeCards[employeeCardId].lastname}
-                        firstname={employeeCards[employeeCardId].firstname}
-                        service={employeeCards[employeeCardId].service}
-                        role={employeeCards[employeeCardId].role} 
-                    />
-                )
-            })}
-            </>
-            }
-        </Box>
+        <>
+        {employeeCards && Object.keys(employeeCards).length > 0 &&
+            <Box sx={{ width: '100%' }}>
+                {(Object.keys(employeeCards)).map((employeeCardId: string) => {
+                    return (
+                        <EmployeeCardTile 
+                            key={employeeCardId} 
+                            picture={employeeCards[employeeCardId].picture}
+                            lastname={employeeCards[employeeCardId].lastName}
+                            firstname={employeeCards[employeeCardId].firstName}
+                            service={employeeCards[employeeCardId].service}
+                            role={employeeCards[employeeCardId].role} 
+                        />
+                    )
+                })}
+            </Box>
+        }
+        </>
     )
 }
 
