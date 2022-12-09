@@ -45,18 +45,25 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
                 <img id="generatedCard" src={cardDataUrl} alt="card"></img>
             </div>
             <div id="cardPdf" style={{display: 'none'}}>
-                <div className="companyLogo">
-                    <img src="/logo.png" alt="Logo" id="companyLogo" />
+                <div className="logos">
+                    <div className="companyLogo">
+                        <img src="/logo.png" alt="Logo" id="companyLogo" />
+                    </div>
+                    <div className="pictureBrand">
+                        <img src="/WorkID_small.png" alt="WorkID" />
+                    </div>
                 </div>
-                <div className="employeePicture">
-                    <div className="picture">
-                        <img src={`data:image/*;${cardInfos.photo}`} alt="Employee" id="employeePicture" />
+                <div className="employeeDetails">
+                    <div className="employeePicture">
+                        <div className="picture">
+                            <img src={`data:image/*;${cardInfos.photo}`} alt="Employee" id="employeePicture" />
+                        </div>
                     </div>
                     <div className="employeeCardDetails">
-                        <p id="employeeFirstname"><span className="label">Firstname:</span> {cardInfos.firstName}</p>
-                        <p id="employeeLastname"><span className="label">Lastname:</span> {cardInfos.lastName}</p>
-                        <p id="employeeBirthdate"><span className="label">Birth date:</span> {cardInfos.birthDate}</p>
-                        <p id="employeeStartdate"><span className="label">Start date:</span> {cardInfos.startDate}</p>
+                        <div id="employeeFirstname"><span className="label">Firstname:</span> {cardInfos.firstName}</div>
+                        <div id="employeeLastname"><span className="label">Lastname:</span> {cardInfos.lastName}</div>
+                        <div id="employeeBirthdate"><span className="label">Birth date:</span> {cardInfos.birthDate}</div>
+                        <div id="employeeStartdate"><span className="label">Start date:</span> {cardInfos.startDate}</div>
                     </div>
                 </div>
             </div>  
@@ -64,11 +71,26 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
                 #cardPdf {
                     display: block;
                     position: relative;
-                    width: 400px;
-                    height: 200px;
+                    height: 220px;
+                    width: 440px;
                     margin: auto;
+                    padding: 0 20px 0 0;
+                    background-color: white;
+                    color: black;
                     border: 1px solid black;
                     text-align: left;
+                }
+                #cardPdf .logos {
+                    clear: both;
+                    position: relative;
+                }
+                #cardPdf .companyLogo {
+                    float: left;
+                }
+                #cardPdf .pictureBrand {
+                    text-align: right;
+                    float: right;
+                    margin-top: 30px;
                 }
                 #cardPdf .companyLogo > img {
                     position: absolute;
@@ -77,10 +99,13 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
                     width: 60px;
                     height: 60px;
                 }
+                #cardPdf .employeeDetails {
+                    clear: both;
+                    padding: 20px 0 0 90px;
+                }
                 #cardPdf .employeePicture {
                     float: none;
                     clear: both;
-                    padding: 50px 0 0 90px;
                 }
                 #cardPdf .employeePicture .picture {
                     float: left;
@@ -94,7 +119,7 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
                 }
                 #cardPdf .employeeCardDetails {
                     float: left;
-                    margin-left: 20px;
+                    margin: 8px 0 0 20px;
                 }
             `}</style>
         </>

@@ -1,56 +1,34 @@
-import { Typography } from "@mui/material";
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import { SyntheticEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { Link, matchPath, Route, Routes, useLocation } from 'react-router-dom';
 import useEthContext from "../../hooks/useEthContext";
 import EmployeePage from "../../pages/EmployeePage";
+import EmployerPage from '../../pages/EmployerPage';
 import Home from "../../pages/Home";
-import EmployeeCardGenerator from "../EmployeeCard/EmployeeCardGenerator";
 import EmployeeCardList from "../EmployeeCard/EmployeeCardsList";
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
+const useRouteMatch = (patterns: string[]) => {
+  const { pathname } = useLocation();
 
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+  for (let i = 0; i < patterns.length; i += 1) {
+    const pattern = patterns[i];
+    const possibleMatch = matchPath(pattern, pathname);
+    if (possibleMatch !== null) {
+      return possibleMatch;
+    }
+  }
 
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`vertical-tabpanel-${index}`}
-      aria-labelledby={`vertical-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ paddingLeft: 3 }}>
-          {children}
-        </Box>
-      )}
-    </div>
-  );
-}
-
-function a11yProps(index: number) {
-  return {
-    id: `vertical-tab-${index}`,
-    'aria-controls': `vertical-tabpanel-${index}`,
-  };
+  return null;
 }
 
 const WorkIDTabs = () => {
+  const routeMatch = useRouteMatch(['/', '/employer', '/employees-list', '/employee']);
+  const currentTab = routeMatch?.pattern?.path || '/';
   const { state: { accounts, owner } } = useEthContext()
 
   const [connectedUser, setConnectedUser] = useState('')
-  const [value, setValue] = useState(0);
-
-  const handleChange = (event: SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
 
   useEffect(() => {
       setConnectedUser(accounts[0])
@@ -68,20 +46,20 @@ const WorkIDTabs = () => {
           <Tabs 
             orientation="vertical"
             variant="scrollable"
-            value={value}
-            onChange={handleChange}
-            aria-label="Vertical tabs example"
+            value={currentTab}
             sx={{ borderRight: 1, borderColor: 'divider' }}
           >  
-            <Tab label="Home" {...a11yProps(0)}  />
-            {connectedUser === owner && <Tab label="Employer" {...a11yProps(1)}  />}
-            {connectedUser === owner && <Tab label="Employees list" {...a11yProps(2)} />}
-            <Tab label="Employee" {...a11yProps(connectedUser === owner ? 3 : 1)}  />
-          </Tabs>
-          <TabPanel value={value} index={0}><Home /></TabPanel>
-          {connectedUser === owner && <TabPanel value={value} index={1}><EmployeeCardGenerator /></TabPanel>}
-          {connectedUser === owner && <TabPanel value={value} index={2}><EmployeeCardList /></TabPanel>}
-          <TabPanel value={value} index={connectedUser === owner ? 3 : 1}><EmployeePage /></TabPanel>
+            <Tab label="Home" value='/' to='/' component={Link} />
+            {connectedUser === owner && <Tab label="Employer" value='/employer' to='/employer' component={Link} />}
+            {connectedUser === owner && <Tab label="Employees list" value='/employees-list' to='/employees-list' component={Link} />}
+            <Tab label="Employee"  value='/employee' to='/employee' component={Link}  />
+          </Tabs>          
+          <Routes>
+            <Route path='/' element={<Box sx={{ paddingLeft: 3 }}><Home /></Box>} />
+            <Route path='/employer' element={<Box sx={{ paddingLeft: 3 }}><EmployerPage /></Box>} />
+            <Route path='/employees-list' element={<Box sx={{ paddingLeft: 3 }}><EmployeeCardList /></Box>} />
+            <Route path='/employee' element={<Box sx={{ paddingLeft: 3 }}><EmployeePage /></Box>} />
+          </Routes>
       </Box>
     </>
   );

@@ -9,21 +9,25 @@ import "./token/ERC5484/ERC5484.sol";
 /// @notice You can use this contract to generate digital ids for your employees that can also be used as proof of their work in your company
 contract EmployeeCard is ERC5484 {
 
-  // Mapping for token URIs
+  /// @notice Mapping for token URIs
   mapping(uint256 => string) private _tokenURIs;
+
+  /// @notice Mapping of token ids with end date.
+  mapping(uint256 => uint256) private _tokenEndTimes;
 
   // Event when tokens are sent.
   event TokenReceived(address sender, uint256 amount);
   event CallReceived(address sender, uint256 amount, bytes data);
   event EmployeeCardMinted(address employee, uint256 tokenId);
   event VacationRightsCalculated(address employee);
+  event EmployeeCardEnded(uint256 tokenId, uint256 endTime);
 
   constructor(string memory name, string memory symbol) ERC5484(name, symbol) {}
 
   /// @notice Gets the token URI for the passed token id.
   /// @dev Returns an URI for a given token ID. Revert if the token ID does not exist. May return an empty string.
   /// @param tokenId uint256 ID of the token to query
-  /// @return string The token URI 
+  /// @return The token URI 
   function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
       require(_exists(tokenId));
       return _tokenURIs[tokenId];
@@ -42,7 +46,7 @@ contract EmployeeCard is ERC5484 {
   /// @param _recipient Recipient address.
   /// @param _tokenURI The token URI.
   /// emit EmployeeCardMinted event when card is minted.
-  function mint(address _recipient, string calldata _tokenURI) public onlyOwner {
+  function mint(address _recipient, string calldata _tokenURI) external onlyOwner {
     require(balanceOf(_recipient) == 0, "An employee can only have 1 token");
 
     uint256 tokenId = this.totalSupply();
@@ -58,12 +62,20 @@ contract EmployeeCard is ERC5484 {
 
   /// @notice Gets the employee card id.
   /// @param employee Employee address.
-  /// @return uint256 The employee card id.
+  /// @return The employee card id.
   function getEmployeeCardId(address employee) public view returns (uint256) {
     uint256 employeeTokenId = tokenOfOwnerByIndex(employee, 0);
     _requireMinted(employeeTokenId);
 
     return employeeTokenId;
+  }
+
+  /// @notice Returns if the SBT is still valid.
+  /// @dev A valid token is a token without end time set
+  /// @return True is it's still valid, false otherwise.
+  function isTokenValid(uint256 tokenId) public view returns (bool) {
+    _requireMinted(tokenId);
+    return _tokenEndTimes[tokenId] == 0;
   }
 
   /// @notice Burns a card.

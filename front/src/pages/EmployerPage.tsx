@@ -1,6 +1,7 @@
 import { Box } from "@mui/material"
+import EmployeeCardGenerator from "../components/EmployeeCard/EmployeeCardGenerator"
 
-const EmployeeCardGenerator = () => {
+const EmployerPage = () => {
 
     return (
         <Box sx={{margin: '20px'}}>
@@ -9,4 +10,4 @@ const EmployeeCardGenerator = () => {
     )
 }
 
-export default EmployeeCardGenerator
+export default EmployerPage

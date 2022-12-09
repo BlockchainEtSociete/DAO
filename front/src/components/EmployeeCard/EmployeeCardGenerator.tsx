@@ -1,5 +1,5 @@
-import { Button, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { useState } from "react";
+import { Button, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
+import { ChangeEvent, useState } from "react";
 import useEthContext from "../../hooks/useEthContext";
 import ipfs from "../Common/Ipfs";
 import EmployeeCardImageDisplay from "./EmployeeCardImageDisplay";
@@ -48,10 +48,6 @@ export interface EmployeeCardMetadata {
             "trait_type": "Start date",
             "value": string;
         },
-        {
-            "trait_type": "End date",
-            "value": string;
-        }
     ]
 }
 
@@ -86,34 +82,37 @@ const EmployeeCardGenerator = () => {
     const [cardDataUrl, setCardDataUrl] = useState('');
     const [tokenId, setTokenId] = useState('');
 
-    const handleFirstNameChange = (event: any) => {
+    const handleFirstNameChange = (event: ChangeEvent<HTMLInputElement>) => {
         setFirstName(event.target.value);
     };
-    const handleLastNameChange = (event: any) => {
+    const handleLastNameChange = (event: ChangeEvent<HTMLInputElement>) => {
         setLastName(event.target.value);
     };
-    const handleBirthDateChange = (event: any) => {
+    const handleBirthDateChange = (event: ChangeEvent<HTMLInputElement>) => {
         setBirthDate(event.target.value);
     };
-    const handleStartDateChange = (event: any) => {
+    const handleStartDateChange = (event: ChangeEvent<HTMLInputElement>) => {
         setStartDate(event.target.value);
     };
-    const handleServiceChange = (event: any) => {
+    const handleServiceChange = (event: ChangeEvent<HTMLInputElement>) => {
         setService(event.target.value);
     }
-    const handleRoleChange = (event: any) => {
+    const handleRoleChange = (event: ChangeEvent<HTMLInputElement>) => {
         setRole(event.target.value);
     }
-    const handleContractTypeChange = (event: any) => {
+    const handleContractTypeChange = (event: SelectChangeEvent<string>) => {
         setContractType(event.target.value);
     }
-    const handleContractCategoryChange = (event: any) => {
+    const handleContractCategoryChange = (event: SelectChangeEvent<string>) => {
         setContractCategory(event.target.value);
     }
-    const handlePictureChange = (event: any) => {
-        setPictureBase64(event.target.files[0]);
+    const handlePictureChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const filesUploaded = event.currentTarget.files;
+        if (filesUploaded && filesUploaded.length > 0) {
+            setPictureBase64(filesUploaded[0]);
+        }
     };
-    const handleWalletAddress = async (event: any) => {
+    const handleWalletAddress = async (event: ChangeEvent<HTMLInputElement>) => {
         setErrorMessage('');
         setWalletBalance(0);
         setTokenId('');
@@ -208,12 +207,7 @@ const EmployeeCardGenerator = () => {
                 {
                     "trait_type": "Start date",
                     "value": newCardInfos.startDate,
-                },
-                {
-                    "trait_type": "End date",
-                    "value": '',
-                },
-                
+                },                
             ]
         };
 
@@ -297,7 +291,7 @@ const EmployeeCardGenerator = () => {
             if (cardBase64 && cardBase64 !== 'data:image/*;' && cardBase64 !== 'data:,') {
                 setCardDataUrl(cardBase64)
 
-                const cardFile = await dataUrlToFile(cardBase64)
+                /*const cardFile = await dataUrlToFile(cardBase64)
 
                 const ipfsImageUploadResult = await ipfs.add(cardFile, {pin:true}).catch((err: Error) => {
                     console.log(err.message)
@@ -315,7 +309,7 @@ const EmployeeCardGenerator = () => {
                         pictureUri,
                         newCardInfos
                     );
-                }
+                }*/
             }
         }
     };
@@ -375,7 +369,7 @@ const EmployeeCardGenerator = () => {
                     </div>
                     <div className="form-item">
                         <InputLabel id="contract-type-label">Contract type</InputLabel>
-                        <Select fullWidth={true} name="contract_type" labelId="contract-type-label" label="Contract type" onChange={handleContractTypeChange}>
+                        <Select fullWidth={true} name="contract_type" labelId="contract-type-label" onChange={handleContractTypeChange}>
                             <MenuItem value={'CDI'}>CDI</MenuItem>
                             <MenuItem value={'CDD'}>CDD</MenuItem>
                             <MenuItem value={'Freelance'}>Freelance</MenuItem>
@@ -384,7 +378,7 @@ const EmployeeCardGenerator = () => {
                     </div>
                     <div className="form-item">
                         <InputLabel id="contract-type-label">Contract category</InputLabel>
-                        <Select fullWidth={true} name="contract_category" labelId="contract-category-label" label="Contract category" onChange={handleContractCategoryChange}>
+                        <Select fullWidth={true} name="contract_category" labelId="contract-category-label" onChange={handleContractCategoryChange}>
                             <MenuItem value={'Employee'}>Employee</MenuItem>
                             <MenuItem value={'Executive'}>Executive</MenuItem>
                         </Select>

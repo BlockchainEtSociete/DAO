@@ -41,11 +41,6 @@ const EmployeeCardImageDisplay = ({ tokenId }: EmployeeCardDisplayProps ) => {
 
     return (
         <div style={{margin: 'auto', width: 400}}>
-        {!tokenId && 
-            <div>
-                <p>You've no employee card</p>
-            </div>
-        }
         {tokenId && cardImage &&
                 <div>
                     <img src={`data:image/*;base64,${cardImage}`} alt="card" style={{height: '200px'}}/>

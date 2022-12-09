@@ -1,11 +1,11 @@
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import '@primitivefi/hardhat-dodoc';
 import "solidity-coverage";
 import "hardhat-deploy";
 
-const env = dotenv.config()
+dotenv.config()
 
 const config: HardhatUserConfig = {
   solidity: {

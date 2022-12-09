@@ -3,7 +3,6 @@ import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import useEthContext from "../../hooks/useEthContext"
 import { getRPCErrorMessage } from "../Common/error"
 import { ipfsGetContent } from "../Common/Ipfs"
-import { EmployeeCardMetadata } from "./EmployeeCardGenerator"
 
 interface EmployeeCardDisplayProps {
     tokenId: string

@@ -1,9 +1,10 @@
-import { Box } from "@mui/material"
+import { Box, Button } from "@mui/material"
 import { useEffect, useState } from "react"
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import useEthContext from "../../hooks/useEthContext"
 import { getRPCErrorMessage } from "../Common/error"
 import { ipfsGetContent } from "../Common/Ipfs"
+import EmployeeCardProfile from "./EmployeeCardProfile"
 import EmployeeCardTile from "./EmployeeCardTile"
 
 interface EmployeeTileData {
@@ -18,6 +19,19 @@ const EmployeeCardList = () => {
     const { state: { contract, accounts } } = useEthContext()
 
     const [employeeCards, setEmployeeCards]: any = useState({})
+    const [showCardDetails, setShowCardDetails] = useState(false)
+    const [selectedCardId, setSelectedCardId] = useState('')
+
+    const handleSelectedCard = (cardId: string) => {
+        console.log(cardId)
+        setSelectedCardId(cardId)
+        setShowCardDetails(true)
+    }
+
+    const handleCloseDetails = () => {
+        setSelectedCardId('')
+        setShowCardDetails(false)
+    }
 
     useEffect(() => {
         const addEmployeeCardToList = async (employeeCardId: number) => {
@@ -80,17 +94,24 @@ const EmployeeCardList = () => {
 
     return (
         <>
-        {employeeCards && Object.keys(employeeCards).length > 0 &&
-            <Box sx={{ width: '100%' }}>
+        {showCardDetails && showCardDetails === true && 
+            <>
+            <Button onClick={handleCloseDetails}>&lt; Return to list</Button><EmployeeCardProfile tokenId={selectedCardId} />
+            </>
+        }
+        {!showCardDetails && employeeCards && Object.keys(employeeCards).length > 0 &&
+            <Box sx={{ width: '100%', position: 'relative' }}>
                 {(Object.keys(employeeCards)).map((employeeCardId: string) => {
                     return (
                         <EmployeeCardTile 
                             key={employeeCardId} 
+                            tokenId={employeeCardId}
                             picture={employeeCards[employeeCardId].picture}
                             lastname={employeeCards[employeeCardId].lastName}
                             firstname={employeeCards[employeeCardId].firstName}
                             service={employeeCards[employeeCardId].service}
                             role={employeeCards[employeeCardId].role} 
+                            handleSelectedCard={handleSelectedCard}
                         />
                     )
                 })}

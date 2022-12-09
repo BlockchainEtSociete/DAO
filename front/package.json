@@ -50,5 +50,8 @@
   },
   "browser": {
     "child_process": false
+  },
+  "devDependencies": {
+    "sass": "^1.56.2"
   }
 }

@@ -1,9 +1,9 @@
-import './App.css';
-import { BrowserRouter as Router } from 'react-router-dom';
+import './App.scss';
 import EthProvider from './contexts/EthContext/EthProvider';
 import WorkIDTabs from './components/Common/WorkIDTabs';
 import Header from './components/Common/Header';
 import { createTheme, ThemeProvider } from '@mui/material';
+import { BrowserRouter as Router} from 'react-router-dom';
 
 const darkTheme = createTheme({
   palette: {
@@ -15,8 +15,10 @@ function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <EthProvider>
-        <Header />
-        <WorkIDTabs />
+        <Router>
+          <Header />
+          <WorkIDTabs />
+        </Router>
       </EthProvider>
     </ThemeProvider>
   );

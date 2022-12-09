@@ -1,0 +1,58 @@
+.tile {
+    background-color: white;
+    opacity: 0.8;
+    border: 1px black solid;
+    text-align: center;
+    margin: 0;
+    position: relative;
+    float: left;
+    margin-right: 10px;
+    padding: 10px 20px 10px 0;
+    
+    figcaption {
+        opacity: 0;
+        background-color: white;
+        padding-top: 25%;
+        position: absolute;
+        inset: 0;
+        color: #ffffff;
+        box-sizing: border-box;
+        -webkit-transition: all 0.35s ease;
+        -moz-transition: all 0.35s ease;
+        transition: all 0.35s ease;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    &:hover {
+        cursor: pointer;
+    }
+
+    .tileIcon {
+        color: black;
+        margin: auto;
+    }
+
+    .tileIcon {
+        float: left;
+        margin: 0 20px;
+        .tileIconImage {
+            max-height: 73px;
+            height: auto;
+        }
+    }
+
+    .tileLabel {
+        float: left;
+        margin-top: 5px;
+        color: black;
+        text-align: left;
+        font-size: 100%;
+
+        span {
+            font-weight: bold;
+        }
+    }
+}
