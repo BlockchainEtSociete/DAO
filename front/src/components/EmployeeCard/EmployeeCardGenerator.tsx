@@ -291,7 +291,7 @@ const EmployeeCardGenerator = () => {
             if (cardBase64 && cardBase64 !== 'data:image/*;' && cardBase64 !== 'data:,') {
                 setCardDataUrl(cardBase64)
 
-                /*const cardFile = await dataUrlToFile(cardBase64)
+                const cardFile = await dataUrlToFile(cardBase64)
 
                 const ipfsImageUploadResult = await ipfs.add(cardFile, {pin:true}).catch((err: Error) => {
                     console.log(err.message)
@@ -309,7 +309,7 @@ const EmployeeCardGenerator = () => {
                         pictureUri,
                         newCardInfos
                     );
-                }*/
+                }
             }
         }
     };

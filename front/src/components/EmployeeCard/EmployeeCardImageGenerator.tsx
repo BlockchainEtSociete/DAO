@@ -26,7 +26,7 @@ export const generateCardImage = async (cardInfos: EmployeeCardInfos) => {
                     margin:1,
                     unit: 'px',
                     orientation: Landscape,
-                    jsPDF: {format: [200, 200]}
+                    jsPDF: {format: [125, 125]}
                 })
                 .from(element)
                 .toImg()

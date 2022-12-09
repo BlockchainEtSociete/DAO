@@ -1,10 +1,11 @@
 {
-  "name": "WorkID",
+  "name": "workid",
   "license": "MIT",
   "version": "1.0.0",
   "scripts": {
     "build": "npx hardhat compile",
     "dev": "npx hardhat node --network hardhat",
+    "ganache": "eval $(grep \"^MNEMONIC\" .env) && ganache -m \"$MNEMONIC\"",
     "deploy:hardhat": "npx hardhat --network localhost deploy",
     "deploy:dev": "npx hardhat --network ganache deploy",
     "deploy:goerli": "npx hardhat --network goerli deploy",

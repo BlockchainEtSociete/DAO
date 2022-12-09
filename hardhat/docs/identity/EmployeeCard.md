@@ -129,7 +129,7 @@ Gets the employee card id.
 
 | Name | Type | Description |
 |---|---|---|
-| _0 | uint256 | uint256 The employee card id. |
+| _0 | uint256 | The employee card id. |
 
 ### isApprovedForAll
 
@@ -153,6 +153,28 @@ function isApprovedForAll(address owner, address operator) external view returns
 | Name | Type | Description |
 |---|---|---|
 | _0 | bool | undefined |
+
+### isTokenValid
+
+```solidity
+function isTokenValid(uint256 tokenId) external view returns (bool)
+```
+
+Returns if the SBT is still valid.
+
+*A valid token is a token without end time set*
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| tokenId | uint256 | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | True is it&#39;s still valid, false otherwise. |
 
 ### mint
 
@@ -396,7 +418,7 @@ Gets the token URI for the passed token id.
 
 | Name | Type | Description |
 |---|---|---|
-| _0 | string | string The token URI  |
+| _0 | string | The token URI  |
 
 ### totalSupply
 
@@ -506,6 +528,23 @@ event CallReceived(address sender, uint256 amount, bytes data)
 | sender  | address | undefined |
 | amount  | uint256 | undefined |
 | data  | bytes | undefined |
+
+### EmployeeCardEnded
+
+```solidity
+event EmployeeCardEnded(uint256 tokenId, uint256 endTime)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| tokenId  | uint256 | undefined |
+| endTime  | uint256 | undefined |
 
 ### EmployeeCardMinted
 

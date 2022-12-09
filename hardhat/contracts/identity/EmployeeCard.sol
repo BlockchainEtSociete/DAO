@@ -78,6 +78,16 @@ contract EmployeeCard is ERC5484 {
     return _tokenEndTimes[tokenId] == 0;
   }
 
+  /// @notice Invalidates an SBT token.abi
+  /// @dev Saves the end date (in unix timestamp format) in _tokenEndTimes mapping.
+  /// @param tokenId The token id to invalidate.
+  function invalidateEmployeeCard(uint256 tokenId) external onlyOwner {
+    uint256 endTime = block.timestamp;
+    _tokenEndTimes[tokenId] = endTime;
+
+    emit EmployeeCardEnded(tokenId, endTime);
+  }
+
   /// @notice Burns a card.
   /// @param employee Current holder of the card.
   function burnCard(address employee) external onlyOwner {
