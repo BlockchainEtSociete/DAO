@@ -131,6 +131,23 @@ Gets the employee card id.
 |---|---|---|
 | _0 | uint256 | The employee card id. |
 
+### invalidateEmployeeCard
+
+```solidity
+function invalidateEmployeeCard(uint256 tokenId, uint256 endTime) external nonpayable
+```
+
+Invalidates an SBT token.abi
+
+*Saves the end date (in unix timestamp format) in _tokenEndTimes mapping.*
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| tokenId | uint256 | The token id to invalidate. |
+| endTime | uint256 | undefined |
+
 ### isApprovedForAll
 
 ```solidity

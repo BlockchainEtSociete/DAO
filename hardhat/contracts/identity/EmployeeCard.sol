@@ -75,14 +75,14 @@ contract EmployeeCard is ERC5484 {
   /// @return True is it's still valid, false otherwise.
   function isTokenValid(uint256 tokenId) public view returns (bool) {
     _requireMinted(tokenId);
-    return _tokenEndTimes[tokenId] == 0;
+    return _tokenEndTimes[tokenId] == 0 || _tokenEndTimes[tokenId] >= block.timestamp;
   }
 
   /// @notice Invalidates an SBT token.abi
   /// @dev Saves the end date (in unix timestamp format) in _tokenEndTimes mapping.
   /// @param tokenId The token id to invalidate.
-  function invalidateEmployeeCard(uint256 tokenId) external onlyOwner {
-    uint256 endTime = block.timestamp;
+  function invalidateEmployeeCard(uint256 tokenId, uint256 endTime) external onlyOwner {
+    require(endTime >= block.timestamp, "EmployeeCard: you must specify a end time in the future");
     _tokenEndTimes[tokenId] = endTime;
 
     emit EmployeeCardEnded(tokenId, endTime);

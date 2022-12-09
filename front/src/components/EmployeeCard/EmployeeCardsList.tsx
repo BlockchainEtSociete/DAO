@@ -4,7 +4,7 @@ import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import useEthContext from "../../hooks/useEthContext"
 import { getRPCErrorMessage } from "../Common/error"
 import { ipfsGetContent } from "../Common/Ipfs"
-import EmployeeCardProfile from "./EmployeeCardProfile"
+import EmployeeCardManage from "./EmployeeCardManage"
 import EmployeeCardTile from "./EmployeeCardTile"
 
 interface EmployeeTileData {
@@ -94,11 +94,13 @@ const EmployeeCardList = () => {
 
     return (
         <>
-        {showCardDetails && showCardDetails === true && 
+        {showCardDetails === true && 
             <>
-            <Button onClick={handleCloseDetails}>&lt; Return to list</Button><EmployeeCardProfile tokenId={selectedCardId} />
+            <Button onClick={handleCloseDetails}>&lt; Return to list</Button>
+            <EmployeeCardManage tokenId={selectedCardId} />
             </>
         }
+        {!showCardDetails && (!employeeCards || Object.keys(employeeCards).length === 0) && <p>Loading...</p>}
         {!showCardDetails && employeeCards && Object.keys(employeeCards).length > 0 &&
             <Box sx={{ width: '100%', position: 'relative' }}>
                 {(Object.keys(employeeCards)).map((employeeCardId: string) => {

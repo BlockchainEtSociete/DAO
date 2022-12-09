@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import useEthContext from "../../hooks/useEthContext"
 import { getRPCErrorMessage } from "../Common/error"
@@ -6,6 +6,7 @@ import { ipfsGetContent } from "../Common/Ipfs"
 
 interface EmployeeCardDisplayProps {
     tokenId: string
+    cardStatus?: boolean;
 }
 
 interface EmployeeProfile {
@@ -20,17 +21,22 @@ interface EmployeeProfile {
     contractCategory: string;
 }
 
-const EmployeeCardProfile = ({ tokenId }: EmployeeCardDisplayProps ) => {
+const EmployeeCardProfile = ({ tokenId, cardStatus = true }: EmployeeCardDisplayProps ) => {
     const { state: { web3, contract, accounts } } = useEthContext();
 
-    const [employeeProfile, setEmployeeProfile]: EmployeeProfile | any = useState(null);
+    const [employeeProfile, setEmployeeProfile] = useState<EmployeeProfile | null>(null)
+    const [isCardValid, setIsCardValid] = useState(cardStatus)
 
     useEffect(() => {
-        if (tokenId && !isNaN(parseInt(tokenId))) {
-            (async () => {
-                let tokenUri: string = '';
+        setIsCardValid(cardStatus);
+        (async () => {
+
+            if (tokenId && !isNaN(parseInt(tokenId))) {
+                let tokenUri: string = ''
                 try {
                     tokenUri = await contract.methods.tokenURI(web3.utils.toBN(tokenId)).call({from: accounts[0]})
+                    const updatedCardStatus = await contract.methods.isTokenValid(web3.utils.toBN(tokenId)).call({from: accounts[0]})
+                    setIsCardValid(updatedCardStatus)
                 }
                 catch (e) {
                     console.log(getRPCErrorMessage(e));
@@ -61,9 +67,9 @@ const EmployeeCardProfile = ({ tokenId }: EmployeeCardDisplayProps ) => {
 
                     setEmployeeProfile(employeeProfileData)
                 }
-            })()
-        }
-    }, [accounts, contract, tokenId, web3])
+            }
+        })()
+    }, [accounts, cardStatus, contract, tokenId, web3])
 
     return (
         <div style={{margin: 'auto', width: 400}}>
@@ -72,9 +78,11 @@ const EmployeeCardProfile = ({ tokenId }: EmployeeCardDisplayProps ) => {
                 <p>You've no employee card</p>
             </div>
         }
+        {tokenId && !employeeProfile && <p>Loading...</p>}
         {tokenId && employeeProfile &&
             <div>
                 <p>Welcome {employeeProfile.firstName} {employeeProfile.lastName}</p>
+                <p>Is card valid ? {isCardValid === true ? 'Yes' : 'No'}</p>
                 <p style={{fontWeight: 'bold'}}>Your profile informations: </p>
                 {employeeProfile.picture && <img src={`data:image/*;base64,${employeeProfile.picture}`} alt="Employee" style={{height: '100px'}}/>}
                 <div>Birth date: {employeeProfile.birthDate}</div>
