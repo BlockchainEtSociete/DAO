@@ -1,5 +1,5 @@
 import { AlertColor, Button, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material"
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import useEthContext from "../../hooks/useEthContext";
 import { getRPCErrorMessage } from "../Common/error";
 import SnackbarAlert from "../Common/SnackbarAlert";
@@ -12,13 +12,21 @@ interface StackFormProps {
 const StackForm = ({setWIDBalance, setSWIDBalance}: StackFormProps) => {
     const { state: { governanceContract, widContract, accounts, web3 } } = useEthContext()
 
-    const [stacking, setStacking] = useState(false);
-    const [stackAmount, setStackAmount] = useState('');
-    const [stackDuration, setStackDuration] = useState(0);
+    const [widBalance, setWidBalance] = useState(0)
+    const [stacking, setStacking] = useState(false)
+    const [stackAmount, setStackAmount] = useState('')
+    const [stackDuration, setStackDuration] = useState(0)
 
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState('')
     const [severity, setSeverity] = useState<AlertColor | undefined>('success')
+
+    useEffect(() => {
+        (async () => {
+            const balance = await widContract.methods.balanceOf(accounts[0]).call({from: accounts[0]})
+            setWidBalance(web3.utils.fromWei(balance))
+        })()
+    }, [accounts, widContract])
 
     const handleStacking = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -62,25 +70,28 @@ const StackForm = ({setWIDBalance, setSWIDBalance}: StackFormProps) => {
 
     return (
         <>
-        <form method="post" id="mintForm" encType="multipart/form-data" onSubmit={handleStacking}>            
-            <div className="form-item">
-                <TextField fullWidth={true} name="amount" label="Amount of WID to stack" onChange={handleStackAmount}></TextField>
-            </div>
-            <div className="form-item">
-                <InputLabel id="duration-label">Stacking duration</InputLabel>
-                <Select fullWidth={true} name="contract_type" labelId="duration-label" onChange={handleDuration}>
-                    <MenuItem value={'15768000'}>6 months</MenuItem>
-                    <MenuItem value={'31536000'}>1 year</MenuItem>
-                    <MenuItem value={'94608000'}>3 years</MenuItem>
-                    <MenuItem value={'157680000'}>5 years</MenuItem>
-                </Select>
-            </div>
-            <div className="form-item" style={{textAlign: 'center'}}>
-                <Button variant="contained" type="submit" disabled={stacking}>
-                    Stack WID
-                </Button>
-            </div>
-        </form>
+        {widBalance <= 0 && <p>You need to get WID tokens to be able to stack</p>}
+        {widBalance > 0 &&
+            <form method="post" id="mintForm" encType="multipart/form-data" onSubmit={handleStacking}>            
+                <div className="form-item">
+                    <TextField fullWidth={true} name="amount" label="Amount of WID to stack" onChange={handleStackAmount}></TextField>
+                </div>
+                <div className="form-item">
+                    <InputLabel id="duration-label">Stacking duration</InputLabel>
+                    <Select fullWidth={true} name="contract_type" labelId="duration-label" onChange={handleDuration}>
+                        <MenuItem value={'15768000'}>6 months</MenuItem>
+                        <MenuItem value={'31536000'}>1 year</MenuItem>
+                        <MenuItem value={'94608000'}>3 years</MenuItem>
+                        <MenuItem value={'157680000'}>5 years</MenuItem>
+                    </Select>
+                </div>
+                <div className="form-item" style={{textAlign: 'center'}}>
+                    <Button variant="contained" type="submit" disabled={stacking}>
+                        Stack WID
+                    </Button>
+                </div>
+            </form>
+        }
         <SnackbarAlert open={open} setOpen={setOpen} message={message} severity={severity} />
         </>
     )
