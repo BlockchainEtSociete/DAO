@@ -8,19 +8,13 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract WID is ERC20, Ownable {
-    constructor(
-        string memory name,
-        string memory symbol,
-        uint256 initialSupply
-    ) ERC20(name, symbol) {
-        _mint(msg.sender, initialSupply);
+    constructor() ERC20("WorkID Token", "WID") {}
+
+    function mint(address recipient, uint256 amount) external onlyOwner {
+        _mint(recipient, amount);
     }
 
-    function increaseTotalSupply(uint256 amount) external onlyOwner {
-        _mint(msg.sender, amount);
-    }
-
-    function decreaseTotalSupply(uint256 amount) external onlyOwner {
-        _burn(msg.sender, amount);
+    function burn(address from, uint256 amount) external onlyOwner {
+        _burn(from, amount);
     }
 }

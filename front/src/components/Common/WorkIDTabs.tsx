@@ -6,7 +6,9 @@ import { Link, matchPath, Route, Routes, useLocation } from 'react-router-dom';
 import useEthContext from "../../hooks/useEthContext";
 import EmployeePage from "../../pages/EmployeePage";
 import EmployerPage from '../../pages/EmployerPage';
+import Governance from '../../pages/Governance';
 import Home from "../../pages/Home";
+import Stacking from '../../pages/Stacking';
 import EmployeeCardList from "../EmployeeCard/EmployeeCardsList";
 
 const useRouteMatch = (patterns: string[]) => {
@@ -24,7 +26,7 @@ const useRouteMatch = (patterns: string[]) => {
 }
 
 const WorkIDTabs = () => {
-  const routeMatch = useRouteMatch(['/', '/employer', '/employees-list', '/employee']);
+  const routeMatch = useRouteMatch(['/', '/employer', '/employees-list', '/employee', '/stacking', '/governance']);
   const currentTab = routeMatch?.pattern?.path || '/';
   const { state: { accounts, owner } } = useEthContext()
 
@@ -53,12 +55,16 @@ const WorkIDTabs = () => {
             {connectedUser === owner && <Tab label="Employer" value='/employer' to='/employer' component={Link} />}
             {connectedUser === owner && <Tab label="Employees list" value='/employees-list' to='/employees-list' component={Link} />}
             <Tab label="Employee"  value='/employee' to='/employee' component={Link}  />
+            <Tab label="Stacking" value='/stacking' to='/stacking' component={Link} />
+            <Tab label="Governance" value='/governance' to='/governance' component={Link} />
           </Tabs>          
           <Routes>
             <Route path='/' element={<Box sx={{ paddingLeft: 3 }}><Home /></Box>} />
             <Route path='/employer' element={<Box sx={{ paddingLeft: 3 }}><EmployerPage /></Box>} />
             <Route path='/employees-list' element={<Box sx={{ paddingLeft: 3 }}><EmployeeCardList /></Box>} />
             <Route path='/employee' element={<Box sx={{ paddingLeft: 3 }}><EmployeePage /></Box>} />
+            <Route path='/stacking' element={<Box sx={{ paddingLeft: 3 }}><Stacking /></Box>} />
+            <Route path='/governance' element={<Box sx={{ paddingLeft: 3 }}><Governance /></Box>} />
           </Routes>
       </Box>
     </>

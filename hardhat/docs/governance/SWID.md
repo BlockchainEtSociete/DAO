@@ -1,12 +1,12 @@
-# WID
+# SWID
 
 
 
+> Stacking ERC20 token used for WorkID.
 
+Any WorkID valid SBT holder can stack WID tokens to get governance voting powers.
 
-
-
-
+*This contract can only be used by Governance contract.*
 
 ## Methods
 
@@ -78,23 +78,6 @@ function balanceOf(address account) external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### burn
-
-```solidity
-function burn(address from, uint256 amount) external nonpayable
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| from | address | undefined |
-| amount | uint256 | undefined |
-
 ### decimals
 
 ```solidity
@@ -158,23 +141,6 @@ function increaseAllowance(address spender, uint256 addedValue) external nonpaya
 |---|---|---|
 | _0 | bool | undefined |
 
-### mint
-
-```solidity
-function mint(address recipient, uint256 amount) external nonpayable
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| recipient | address | undefined |
-| amount | uint256 | undefined |
-
 ### name
 
 ```solidity
@@ -219,6 +185,24 @@ function renounceOwnership() external nonpayable
 
 *Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.*
 
+
+### stackWID
+
+```solidity
+function stackWID(uint256 duration, address stacker, uint256 amount) external nonpayable
+```
+
+Receives
+
+*The amount of sWID minted depends of the staking duration.*
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| duration | uint256 | Stacking duration in months (must be 6, 12, 36 or 60). |
+| stacker | address | The stacker address. |
+| amount | uint256 | Amount of WID to stack. |
 
 ### symbol
 
@@ -317,6 +301,23 @@ function transferOwnership(address newOwner) external nonpayable
 |---|---|---|
 | newOwner | address | undefined |
 
+### unstackWID
+
+```solidity
+function unstackWID(uint256 depositId, address stacker) external nonpayable
+```
+
+Allows to unstack a specific deposit.
+
+*dApps will get the list of deposits through the WIDStack events.*
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| depositId | uint256 | The deposit to unstack |
+| stacker | address | The stacker asking to unstack. |
+
 
 
 ## Events
@@ -339,6 +340,23 @@ event Approval(address indexed owner, address indexed spender, uint256 value)
 | spender `indexed` | address | undefined |
 | value  | uint256 | undefined |
 
+### DepositUnstacked
+
+```solidity
+event DepositUnstacked(address from, uint256 depositId)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| from  | address | undefined |
+| depositId  | uint256 | undefined |
+
 ### OwnershipTransferred
 
 ```solidity
@@ -355,6 +373,39 @@ event OwnershipTransferred(address indexed previousOwner, address indexed newOwn
 |---|---|---|
 | previousOwner `indexed` | address | undefined |
 | newOwner `indexed` | address | undefined |
+
+### SWIDBurnt
+
+```solidity
+event SWIDBurnt(uint256 amount)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| amount  | uint256 | undefined |
+
+### SWIDMinted
+
+```solidity
+event SWIDMinted(address to, uint256 amount)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| to  | address | undefined |
+| amount  | uint256 | undefined |
 
 ### Transfer
 
@@ -373,6 +424,26 @@ event Transfer(address indexed from, address indexed to, uint256 value)
 | from `indexed` | address | undefined |
 | to `indexed` | address | undefined |
 | value  | uint256 | undefined |
+
+### WIDStacked
+
+```solidity
+event WIDStacked(uint256 depositId, address from, uint256 amountWID, uint256 duration, uint256 stackTime)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| depositId  | uint256 | undefined |
+| from  | address | undefined |
+| amountWID  | uint256 | undefined |
+| duration  | uint256 | undefined |
+| stackTime  | uint256 | undefined |
 
 
 

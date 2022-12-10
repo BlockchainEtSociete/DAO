@@ -49,7 +49,7 @@ contract EmployeeCard is ERC5484 {
   function mint(address _recipient, string calldata _tokenURI) external onlyOwner {
     require(balanceOf(_recipient) == 0, "An employee can only have 1 token");
 
-    uint256 tokenId = this.totalSupply();
+    uint256 tokenId = this.totalSupply() + 1; // Avoid using token id 0.
     _safeMint(_recipient, tokenId, BurnAuth.Both);
 
     require(_exists(tokenId), "EmployeeCard: token generation failed");

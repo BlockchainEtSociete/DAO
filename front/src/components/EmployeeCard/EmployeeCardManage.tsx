@@ -16,7 +16,6 @@ const EmployeeCardManage = ({tokenId}: EmployeeCardManageProps) => {
     const [endDate, setEndDate] = useState<Dayjs | null>(dayjs())
     const [isCardValid, setIsCardValid] = useState(true)
 
-
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState('')
     const [severity, setSeverity] = useState<AlertColor | undefined>('success')
