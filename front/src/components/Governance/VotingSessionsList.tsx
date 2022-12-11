@@ -1,7 +1,8 @@
-import { Button } from "@mui/material"
+import { Box, Button } from "@mui/material"
 import { useEffect, useState } from "react"
 import useEthContext from "../../hooks/useEthContext"
 import { getRPCErrorMessage } from "../Common/error"
+import ProposalForm from "./ProposalForm"
 import { SessionStatusId } from "./VotingSession.types"
 import VotingSessionDetail from "./VotingSessionDetail"
 import VotingSessionTile from "./VotingSessionTile"
@@ -9,7 +10,7 @@ import VotingSessionTile from "./VotingSessionTile"
 const VotingSessionsList = () => {
     const { state: { governanceContract, accounts } } = useEthContext()
 
-    const [votingSessions, setVotingSessions]: any[] = useState([])
+    const [votingSessions, setVotingSessions]= useState<number[]>([])
     const [showVotingDetail, setShowVotingDetail] = useState(false)
     const [selectedVotingSessionId, setSelectedVotingSessionId] = useState('')
 
@@ -27,10 +28,11 @@ const VotingSessionsList = () => {
     }
 
     useEffect(() => {
-        const addVotingSession = async (votingSessionId: number) => {
+        const addVotingSession = (votingSessionId: number) => {
             // Only add session if it's not already added
             if (!votingSessions.includes(votingSessionId)) {
-                setVotingSessions([...votingSessions, votingSessionId]);
+                const votingSessionsUpdated = [...votingSessions, votingSessionId].sort((s1, s2) => s2 - s1);
+                setVotingSessions(votingSessionsUpdated);
             }
         }
 
@@ -44,7 +46,7 @@ const VotingSessionsList = () => {
 
                 if (oldEvents && oldEvents.length > 0) {
                     oldEvents.map(async (event: any) => {
-                        await addVotingSession(event.returnValues.sessionId)
+                        addVotingSession(event.returnValues.sessionId)
                     });
                 }
 
@@ -69,8 +71,9 @@ const VotingSessionsList = () => {
         {!showVotingDetail && !votingSessions && <p>Loading...</p>}
         {!showVotingDetail && votingSessions && votingSessions.length > 0 &&
             <>
+            <ProposalForm />
             { votingSessions.map((sessionId: number) => 
-                (<VotingSessionTile sessionId={sessionId} handleSelectedVotingSession={handleSelectedVotingSession}/>))
+                (<div style={{width: "100%"}}><VotingSessionTile sessionId={sessionId} handleSelectedVotingSession={handleSelectedVotingSession}/></div>))
             }
             </>
         }

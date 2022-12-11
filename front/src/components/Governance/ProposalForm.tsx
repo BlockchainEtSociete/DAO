@@ -1,5 +1,5 @@
 import { AlertColor, Button, TextField } from "@mui/material"
-import { DesktopDatePicker, DesktopDateTimePicker, LocalizationProvider } from "@mui/x-date-pickers"
+import { DesktopDateTimePicker, LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"
 import dayjs, { Dayjs } from "dayjs"
 import { ChangeEvent, FormEvent, useState } from "react"
@@ -62,7 +62,7 @@ const ProposalForm = () => {
             <div className="form-item">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DesktopDateTimePicker
-                    label="End date"
+                    label="Start date"
                     inputFormat="DD/MM/YYYY HH:mm:ss"
                     value={dayjs.unix(proposalStartTime)}
                     onChange={handleStartDate}

@@ -4,26 +4,18 @@ import { ChangeEvent, FormEvent, useEffect, useState } from "react"
 import useEthContext from "../../hooks/useEthContext";
 import { getRPCErrorMessage } from "../Common/error";
 import SnackbarAlert from "../Common/SnackbarAlert";
-import { SessionDetail } from "./VotingSession.types";
+import { getSessionStatus, SessionDetail, SessionStatus } from "./VotingSession.types";
 
 interface VotingSessionDetail {
     sessionId: string;
 }
 
-const SessionStatus = [
-    'Pending',
-    'In progress',
-    'Ended'
-]
-
 const VotingSessionDetail = ({sessionId}: VotingSessionDetail) => {
     const { state: { governanceContract, accounts, web3 } } = useEthContext()
 
     const [vote, setVote] = useState(true)
-    const [sessionStatus, setSessionStatus] = useState('')
-    const [proposal, setProposal] = useState('')
-    const [startTime, setStartTime] = useState('')
-    const [endTime, setEndTime] = useState('')
+    const [sessionStatus, setSessionStatus] = useState(0)
+    const [sessionDetail, setSessionDetail] = useState<SessionDetail | null>()
 
     const [userVoted, setUserVoted] = useState(false)
 
@@ -37,14 +29,10 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetail) => {
     useEffect(() => {
         (async () => {
             try {
-                const sessionStatus: number = await governanceContract.methods.getVotingSessionStatus(web3.utils.BN(sessionId)).call({from: accounts[0]})
-                setSessionStatus(SessionStatus[sessionStatus]);
-
                 const sessionDetail: SessionDetail = await governanceContract.methods.getOneProposalSession(web3.utils.BN(sessionId)).call({from: accounts[0]})
-                
-                setProposal(sessionDetail.proposal.description)
-                setStartTime(dayjs.unix(sessionDetail.startTime).format('DD/MM/YYYY HH:mm:ss'))
-                setEndTime(dayjs.unix(sessionDetail.endTime).format('DD/MM/YYYY HH:mm:ss'))
+                setSessionDetail(sessionDetail)
+
+                setSessionStatus(getSessionStatus(sessionDetail.startTime, sessionDetail.endTime));
 
                 const swidBalance = await governanceContract.methods.getVotingPower().call({from: accounts[0]})
                 setVotingPower(web3.utils.fromWei(web3.utils.BN(swidBalance)))
@@ -61,6 +49,21 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetail) => {
             }
         })()
     })
+
+    // Recalculating status every 10 secs.
+    useEffect(()=>{
+        if (sessionDetail) {
+            const newSessionStatus = getSessionStatus(sessionDetail.startTime, sessionDetail.endTime)
+            setSessionStatus(newSessionStatus)
+
+            const interval=setInterval(()=>{
+                const newSessionStatus = getSessionStatus(sessionDetail.startTime, sessionDetail.endTime)
+                setSessionStatus(newSessionStatus)
+            },10000)
+            
+            return()=>clearInterval(interval)
+        }
+    },[sessionDetail])
     
     const handleVote = (e: ChangeEvent<HTMLInputElement>) => {
         setVote(e.target.value === 'yes' ? true : false)
@@ -88,10 +91,10 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetail) => {
     return (
         <>
         {userVoted && <p>You already voted on this session.</p>}
-        {!userVoted && <>
-            <div>Session status: {sessionStatus}</div>
-            <div>{proposal}</div>
-            <div>Vote period: {startTime} - {endTime}</div>
+        {!userVoted && sessionDetail && <>
+            <div><span style={{fontWeight: 'bold'}}>Session status:</span> {SessionStatus[sessionStatus]}</div><br/>
+            <div>{sessionDetail.proposal.description}</div><br/>
+            <div><span style={{fontWeight: 'bold'}}>Vote period:</span> {dayjs.unix(sessionDetail.startTime).format('DD/MM/YYYY HH:mm:ss')} - {dayjs.unix(sessionDetail.endTime).format('DD/MM/YYYY HH:mm:ss')}</div>
             <form method="post" id="mintForm" encType="multipart/form-data" onSubmit={submitVote}>           
                 <div className="form-item">
                     <FormLabel id="vote-label">Vote</FormLabel>
