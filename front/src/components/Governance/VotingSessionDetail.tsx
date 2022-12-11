@@ -48,7 +48,7 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetailProps) => {
                 console.log(reason)
             }
         })()
-    })
+    }, [accounts, governanceContract, sessionId, web3])
 
     // Recalculating status every 10 secs.
     useEffect(()=>{
@@ -78,7 +78,7 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetailProps) => {
         setVoting(true)
 
         try {
-            await governanceContract.methods.voteOnProposal(sessionId, vote, web3.utils.BN(web3.utils.toWei(votingPower))).send({from: accounts[0]})
+            await governanceContract.methods.voteOnProposal(sessionId, vote, web3.utils.BN(web3.utils.toWei(`${votingPower}`))).send({from: accounts[0]})
 
             setMessage('Your vote has been submitted. Thank you ! :)')
             setSeverity('success')
