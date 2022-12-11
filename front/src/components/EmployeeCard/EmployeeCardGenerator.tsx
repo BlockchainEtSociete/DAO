@@ -340,7 +340,6 @@ const EmployeeCardGenerator = () => {
     return (
         <div>
             <div style={{margin: '20px'}}>
-                <p>Contract address: {contract._address}</p>
                 <TokenBalance account={wallet} />
                 <EmployeeCardImageDisplay tokenId={tokenId} />
                 <div className="success_message">{successMessage}</div>

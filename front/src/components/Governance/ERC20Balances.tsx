@@ -23,7 +23,8 @@ const ERC20Balances = ({WIDBalance, setWIDBalance, SWIDBalance, setSWIDBalance}:
 
     return (
         <>
-            <span>Your WID Balance : {WIDBalance}</span>&nbsp;<span>Your SWID Balance: {SWIDBalance}</span>
+            <div><span style={{fontWeight: "bold"}}>WID Balance :</span> {WIDBalance} WID</div>
+            <div><span style={{fontWeight: "bold"}}>sWID Balance:</span> {SWIDBalance} sWID</div>
         </>
     )
 }

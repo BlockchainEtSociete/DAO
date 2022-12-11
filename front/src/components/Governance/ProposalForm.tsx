@@ -57,7 +57,7 @@ const ProposalForm = () => {
         <>
         <form method="post" id="mintForm" encType="multipart/form-data" onSubmit={handleAddProposal}>            
             <div className="form-item">
-                <TextField name="description" label="Description" onChange={handleDescription}></TextField>
+                <TextField fullWidth={true} name="description" label="Description" onChange={handleDescription}></TextField>
             </div>
             <div className="form-item">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -66,7 +66,7 @@ const ProposalForm = () => {
                     inputFormat="DD/MM/YYYY HH:mm:ss"
                     value={dayjs.unix(proposalStartTime)}
                     onChange={handleStartDate}
-                    renderInput={(params) => <TextField {...params} />}
+                    renderInput={(params) => <TextField fullWidth={true} {...params} />}
                     />
                 </LocalizationProvider>
             </div>
@@ -77,7 +77,7 @@ const ProposalForm = () => {
                     inputFormat="DD/MM/YYYY HH:mm:ss"
                     value={dayjs.unix(proposalEndTime)}
                     onChange={handleEndDate}
-                    renderInput={(params) => <TextField {...params} />}
+                    renderInput={(params) => <TextField fullWidth={true} {...params} />}
                     />
                 </LocalizationProvider>
             </div>

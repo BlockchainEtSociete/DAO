@@ -1,3 +1,4 @@
+import { Box } from "@mui/material"
 import { useEffect, useState } from "react"
 import ProposalForm from "../components/Governance/ProposalForm"
 import VotingSessionsList from "../components/Governance/VotingSessionsList"
@@ -16,14 +17,12 @@ const Governance = () => {
     }, [accounts, widContract, web3, governanceContract.methods])
 
     return (
-        <>
+        <Box sx={{width: "80%"}}>
         {votingPower === 0 && <p>You don't have any voting power</p>}
         {votingPower > 0 &&
-            <>
             <VotingSessionsList />
-            </>
         }
-        </>
+        </Box>
     )
 }
 

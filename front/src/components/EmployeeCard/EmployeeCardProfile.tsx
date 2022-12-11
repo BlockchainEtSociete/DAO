@@ -72,7 +72,7 @@ const EmployeeCardProfile = ({ tokenId, cardStatus = true }: EmployeeCardDisplay
     }, [accounts, cardStatus, contract, tokenId, web3])
 
     return (
-        <div style={{margin: 'auto', width: 400}}>
+        <div>
         {!tokenId && 
             <div>
                 <p>You've no employee card</p>
@@ -82,15 +82,16 @@ const EmployeeCardProfile = ({ tokenId, cardStatus = true }: EmployeeCardDisplay
         {tokenId && employeeProfile &&
             <div>
                 <p>Welcome {employeeProfile.firstName} {employeeProfile.lastName}</p>
-                <p>Is card valid ? {isCardValid === true ? 'Yes' : 'No'}</p>
+                <p><span style={{fontWeight: 'bold'}}>Is card valid ?</span> {isCardValid === true ? 'Yes' : 'No'}</p>
                 <p style={{fontWeight: 'bold'}}>Your profile informations: </p>
                 {employeeProfile.picture && <img src={`data:image/*;base64,${employeeProfile.picture}`} alt="Employee" style={{height: '100px'}}/>}
-                <div>Birth date: {employeeProfile.birthDate}</div>
-                <div>Start date: {employeeProfile.startDate}</div>
-                <div>Service: {employeeProfile.service}</div>
-                <div>Role: {employeeProfile.role}</div>
-                <div>Contract type: {employeeProfile.contractType}</div>
-                <div>Contract category: {employeeProfile.contractCategory}</div>
+                <br/><br/>
+                <div><span style={{fontWeight: 'bold'}}>Birth date:</span> {employeeProfile.birthDate}</div>
+                <div><span style={{fontWeight: 'bold'}}>Start date:</span> {employeeProfile.startDate}</div>
+                <div><span style={{fontWeight: 'bold'}}>Service:</span> {employeeProfile.service}</div>
+                <div><span style={{fontWeight: 'bold'}}>Role:</span> {employeeProfile.role}</div>
+                <div><span style={{fontWeight: 'bold'}}>Contract type:</span> {employeeProfile.contractType}</div>
+                <div><span style={{fontWeight: 'bold'}}>Contract category:</span> {employeeProfile.contractCategory}</div>
             </div>
         }
         </div>

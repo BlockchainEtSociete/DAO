@@ -59,12 +59,12 @@ const WorkIDTabs = () => {
             <Tab label="Governance" value='/governance' to='/governance' component={Link} />
           </Tabs>          
           <Routes>
-            <Route path='/' element={<Box sx={{ paddingLeft: 3 }}><Home /></Box>} />
-            <Route path='/employer' element={<Box sx={{ paddingLeft: 3 }}><EmployerPage /></Box>} />
-            <Route path='/employees-list' element={<Box sx={{ paddingLeft: 3 }}><EmployeeCardList /></Box>} />
-            <Route path='/employee' element={<Box sx={{ paddingLeft: 3 }}><EmployeePage /></Box>} />
-            <Route path='/stacking' element={<Box sx={{ paddingLeft: 3 }}><Stacking /></Box>} />
-            <Route path='/governance' element={<Box sx={{ paddingLeft: 3 }}><Governance /></Box>} />
+            <Route path='/' element={<Box sx={{ paddingLeft: 3, paddingRight: 3, width: "100%" }}><Home /></Box>} />
+            <Route path='/employer' element={<Box sx={{ paddingLeft: 3, paddingRight: 3, width: "100%" }}><EmployerPage /></Box>} />
+            <Route path='/employees-list' element={<Box sx={{ paddingLeft: 3, paddingRight: 3, width: "100%" }}><EmployeeCardList /></Box>} />
+            <Route path='/employee' element={<Box sx={{ ppaddingLeft: 3, paddingRight: 3, width: "100%" }}><EmployeePage /></Box>} />
+            <Route path='/stacking' element={<Box sx={{ paddingLeft: 3, paddingRight: 3, width: "100%" }}><Stacking /></Box>} />
+            <Route path='/governance' element={<Box sx={{ paddingLeft: 3, paddingRight: 3, width: "100%" }}><Governance /></Box>} />
           </Routes>
       </Box>
     </>

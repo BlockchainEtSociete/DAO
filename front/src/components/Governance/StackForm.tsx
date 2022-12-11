@@ -1,4 +1,4 @@
-import { AlertColor, Button, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material"
+import { AlertColor, Button, FormLabel, InputLabel, MenuItem, Select, SelectChangeEvent, Slider, TextField } from "@mui/material"
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import useEthContext from "../../hooks/useEthContext";
 import { getRPCErrorMessage } from "../Common/error";
@@ -14,7 +14,7 @@ const StackForm = ({setWIDBalance, setSWIDBalance}: StackFormProps) => {
 
     const [widBalance, setWidBalance] = useState(0)
     const [stacking, setStacking] = useState(false)
-    const [stackAmount, setStackAmount] = useState('')
+    const [stackAmount, setStackAmount] = useState(0)
     const [stackDuration, setStackDuration] = useState(0)
 
     const [open, setOpen] = useState(false)
@@ -26,7 +26,7 @@ const StackForm = ({setWIDBalance, setSWIDBalance}: StackFormProps) => {
             const balance = await widContract.methods.balanceOf(accounts[0]).call({from: accounts[0]})
             setWidBalance(web3.utils.fromWei(balance))
         })()
-    }, [accounts, widContract])
+    }, [accounts, web3, widContract])
 
     const handleStacking = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -60,7 +60,7 @@ const StackForm = ({setWIDBalance, setSWIDBalance}: StackFormProps) => {
         setStacking(false)
     }
 
-    const handleStackAmount = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleStackAmount = (e: any) => {
         setStackAmount(e.target.value);
     }
 
@@ -74,8 +74,18 @@ const StackForm = ({setWIDBalance, setSWIDBalance}: StackFormProps) => {
         {widBalance > 0 &&
             <form method="post" id="mintForm" encType="multipart/form-data" onSubmit={handleStacking}>            
                 <div className="form-item">
-                    <TextField fullWidth={true} name="amount" label="Amount of WID to stack" onChange={handleStackAmount}></TextField>
+                    <FormLabel id="vote-label">Amount of WID to stack</FormLabel>
+                    <Slider 
+                        defaultValue={stackAmount} 
+                        step={1} 
+                        min={1} 
+                        max={widBalance}
+                        onChange={handleStackAmount} 
+                        valueLabelDisplay="on"
+                        marks
+                    />
                 </div>
+                
                 <div className="form-item">
                     <InputLabel id="duration-label">Stacking duration</InputLabel>
                     <Select fullWidth={true} name="contract_type" labelId="duration-label" onChange={handleDuration}>

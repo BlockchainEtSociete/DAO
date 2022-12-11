@@ -4,13 +4,13 @@ import { ChangeEvent, FormEvent, useEffect, useState } from "react"
 import useEthContext from "../../hooks/useEthContext";
 import { getRPCErrorMessage } from "../Common/error";
 import SnackbarAlert from "../Common/SnackbarAlert";
-import { getSessionStatus, SessionDetail, SessionStatus } from "./VotingSession.types";
+import { getSessionStatus, SessionDetail, SessionStatus, SessionStatusId } from "./VotingSession.types";
 
-interface VotingSessionDetail {
+interface VotingSessionDetailProps {
     sessionId: string;
 }
 
-const VotingSessionDetail = ({sessionId}: VotingSessionDetail) => {
+const VotingSessionDetail = ({sessionId}: VotingSessionDetailProps) => {
     const { state: { governanceContract, accounts, web3 } } = useEthContext()
 
     const [vote, setVote] = useState(true)
@@ -20,6 +20,7 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetail) => {
     const [userVoted, setUserVoted] = useState(false)
 
     const [voting, setVoting] = useState(false)
+    const [SWIDBalance, setSWIDBalance] = useState(0)
     const [votingPower, setVotingPower] = useState(0)
 
     const [open, setOpen] = useState(false)
@@ -35,8 +36,7 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetail) => {
                 setSessionStatus(getSessionStatus(sessionDetail.startTime, sessionDetail.endTime));
 
                 const swidBalance = await governanceContract.methods.getVotingPower().call({from: accounts[0]})
-                setVotingPower(web3.utils.fromWei(web3.utils.BN(swidBalance)))
-
+                setSWIDBalance(web3.utils.fromWei(web3.utils.BN(swidBalance)))
 
                 const hasVoted = await governanceContract.methods.getVoterStatus(web3.utils.BN(sessionId)).call({from: accounts[0]})
                 setUserVoted(hasVoted)
@@ -69,6 +69,10 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetail) => {
         setVote(e.target.value === 'yes' ? true : false)
     }
 
+    const handleVotingPower = (e: any) => {
+        setVotingPower(e.target.value)
+    }
+
     const submitVote = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setVoting(true)
@@ -91,7 +95,10 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetail) => {
     return (
         <>
         {userVoted && <p>You already voted on this session.</p>}
-        {!userVoted && sessionDetail && <>
+        {!userVoted && sessionStatus !== SessionStatusId.InProgress && <p>The voting session is not open.</p>} 
+        {!userVoted && sessionStatus === SessionStatusId.InProgress && sessionDetail && <>
+            <br/>
+            <div><span style={{fontWeight: 'bold'}}>Max amount of sWID you can use:</span> {SWIDBalance} sWID</div><br/>
             <div><span style={{fontWeight: 'bold'}}>Session status:</span> {SessionStatus[sessionStatus]}</div><br/>
             <div>{sessionDetail.proposal.description}</div><br/>
             <div><span style={{fontWeight: 'bold'}}>Vote period:</span> {dayjs.unix(sessionDetail.startTime).format('DD/MM/YYYY HH:mm:ss')} - {dayjs.unix(sessionDetail.endTime).format('DD/MM/YYYY HH:mm:ss')}</div>
@@ -113,7 +120,8 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetail) => {
                         defaultValue={votingPower} 
                         step={0.1} 
                         min={0.1} 
-                        max={votingPower} 
+                        max={SWIDBalance} 
+                        onChange={handleVotingPower}
                         valueLabelDisplay="on"
                         marks
                     />
