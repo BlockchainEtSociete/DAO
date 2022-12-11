@@ -52,7 +52,7 @@ const EthProvider = ({ children }: EthProviderProps) => {
   useEffect(() => {
     const tryInit = async () => {
       try {
-        const networkName = "ganache";
+        const networkName = "mumbai";
 
         const cardArtifact = require(`../../contracts/${networkName}/EmployeeCard.json`);
         const widArtifact = require(`../../contracts/${networkName}/WID.json`);
