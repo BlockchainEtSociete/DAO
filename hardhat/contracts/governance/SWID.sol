@@ -65,7 +65,7 @@ contract SWID is ERC20, Ownable {
             amountSWID = (amount / 100) * 60;
         }
         // 5 years
-        else if (duration == 157680000) {
+        else {
             amountSWID = amount;
         }
 

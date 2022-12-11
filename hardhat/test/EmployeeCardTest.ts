@@ -23,6 +23,16 @@ describe("EmployeeCard Test", function () {
     });
   });
 
+  context("SBT Tests", () => {
+    it("Require - Should revert on trying to transfer", async () => {
+      const { employeeCard, owner, employee1 } = await loadFixture(deployEmployeeCard);
+      
+      await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
+
+      await expect(employeeCard.connect(employee1).transferFrom(employee1.address, owner.address, 1)).to.be.revertedWith("ERC 5484: Transfer is not allowed");
+    })
+  })
+
   context("Mint", () => {
     it("Require - Should revert when already minted", async () => {
       const { employeeCard, owner, employee1 } = await loadFixture(deployEmployeeCard);
@@ -86,6 +96,12 @@ describe("EmployeeCard Test", function () {
   })
 
   context("isTokenValid", () => {
+    it("Require - Should revert when called by other than owner", async () => {
+      const { employeeCard, owner, employee1 } = await loadFixture(deployEmployeeCard);
+      await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
+
+      await expect(employeeCard.connect(employee1).invalidateEmployeeCard(BigNumber.from(1), BigNumber.from(dayjs().subtract(1, 'month').unix()))).to.be.revertedWith('Ownable: caller is not the owner');
+    })
     it("Require - Should revert on token not minted", async () => {
       const { employeeCard, owner } = await loadFixture(deployEmployeeCard);
 

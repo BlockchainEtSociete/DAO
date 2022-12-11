@@ -35,6 +35,32 @@ describe("Governance Test", function () {
     });
 
     context("addProposal", () => {
+        it("Require - Should revert if called by other than an employee", async () => {
+            const { governance, employee1 } = await loadFixture(deployGovernance);
+
+            await expect(governance.connect(employee1).addProposal('description', BigNumber.from(dayjs().unix()), BigNumber.from(dayjs().add(1, 'day').unix()))).to.be.revertedWith("EmployeeCard: This address doesn't have any employee card.");
+        })
+
+        it("Require - Should revert if employee card has expired", async () => {
+            const { governance, employeeCard, owner, employee1 } = await loadFixture(deployGovernance);
+            
+            await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
+            
+            const timestamp = await time.latest();
+            await employeeCard.connect(owner).invalidateEmployeeCard(BigNumber.from(1), BigNumber.from(timestamp+20));
+
+            await time.increase(60);
+
+            await expect(governance.connect(employee1).addProposal('description', BigNumber.from(dayjs().unix()), BigNumber.from(dayjs().add(1, 'day').unix()))).to.be.revertedWith("Your employee card must still be valid to participate to the governance");
+        })
+
+        it("Require - Should revert if user is not eligible to governance (no sWID tokens)", async () => {
+            const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
+            await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
+
+            await expect(governance.connect(employee1).addProposal('description', BigNumber.from(dayjs().unix()), BigNumber.from(dayjs().add(1, 'day').unix()))).to.be.revertedWith("WorkID Governance: You don't have any voting power.");
+        })
+
         it("Require - Should revert when proposal start time is in the past", async () => {
             const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
 
@@ -118,14 +144,14 @@ describe("Governance Test", function () {
     })
 
     context("getOneProposalSession", () => {
-        it("Require - Should revert if user is not employee", async () => {
+        it("Require - Should revert if user is not eligible to governance (no sWID tokens)", async () => {
             const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
             await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
 
             await expect(governance.connect(employee1).getOneProposalSession(0)).to.be.revertedWith("WorkID Governance: You don't have any voting power.");
         })
 
-        it("Require - Should revert if user is not eligible to governance (no sWID tokens)", async () => {
+        it("Require - Should revert if user is not employee", async () => {
             const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
             await expect(governance.connect(employee1).getOneProposalSession(0)).to.be.revertedWith("EmployeeCard: This address doesn't have any employee card.");
         })
@@ -173,6 +199,19 @@ describe("Governance Test", function () {
     });
 
     context("getVotingSessionStatus", () => {
+        it("Require - Should revert if called by other than an employee", async () => {
+            const { governance, employee1 } = await loadFixture(deployGovernance);
+
+            await expect(governance.connect(employee1).getVotingSessionStatus(BigNumber.from(0))).to.be.revertedWith("EmployeeCard: This address doesn't have any employee card.");
+        })
+
+        it("Require - Should revert if user is not eligible to governance (no sWID tokens)", async () => {
+            const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
+            await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
+
+            await expect(governance.connect(employee1).getVotingSessionStatus(BigNumber.from(0))).to.be.revertedWith("WorkID Governance: You don't have any voting power.");
+        })
+
         it("Require - Should revert when voting session doesn't exist", async () => {
             const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
 
@@ -354,6 +393,19 @@ describe("Governance Test", function () {
     });
 
     context("voteOnProposal", () => {
+        it("Require - Should revert if called by other than an employee", async () => {
+            const { governance, employee1 } = await loadFixture(deployGovernance);
+
+            await expect(governance.connect(employee1).voteOnProposal(BigNumber.from(0), false, ethers.utils.parseEther('0.1'))).to.be.revertedWith("EmployeeCard: This address doesn't have any employee card.");
+        })
+
+        it("Require - Should revert if user is not eligible to governance (no sWID tokens)", async () => {
+            const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
+            await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
+
+            await expect(governance.connect(employee1).voteOnProposal(BigNumber.from(0), false, ethers.utils.parseEther('0.1'))).to.be.revertedWith("WorkID Governance: You don't have any voting power.");
+        })
+
         it("Require - Should revert when voting session doesn't exist", async () => {
             const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
 
@@ -440,7 +492,7 @@ describe("Governance Test", function () {
             await expect(governance.connect(employee1).voteOnProposal(BigNumber.from(0), true, ethers.utils.parseEther('2'))).to.be.revertedWith("Governance: You don't have enough SWIDs for the chosen amount of voting power");
         })
 
-        it("UseCase - Should register vote when user meets all the requirements.", async () => {
+        it("UseCase - Should register vote Yes when user meets all the requirements.", async () => {
             const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
 
             // Ensure the user has rights to participate to governance.
@@ -465,9 +517,48 @@ describe("Governance Test", function () {
             expect(voteReceipt).to.emit(governance, 'Voted').withArgs(employee1.address, BigNumber.from(0), true, ethers.utils.parseEther('0.1'));
         })
 
+        it("UseCase - Should register vote No when user meets all the requirements.", async () => {
+            const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
+
+            // Ensure the user has rights to participate to governance.
+            // 1 valid employee card and sWID tokens.
+            await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
+            
+            const sWIDAddress = await governance.connect(employee1).getStackingContractAddress();
+            await widContract.connect(owner).mint(employee1.address, ethers.utils.parseEther('10'));
+
+            await widContract.connect(employee1).approve(sWIDAddress, ethers.utils.parseEther('1'));
+            await governance.connect(employee1).stackWID(BigNumber.from(15768000), ethers.utils.parseEther('1'));
+
+            const description = 'A wonderful proposal';
+            const startTime = dayjs().add(2, 'minutes').unix();
+            const endTime = dayjs().add(1, 'day').unix();
+
+            await governance.connect(employee1).addProposal(description, BigNumber.from(startTime), BigNumber.from(endTime));
+
+            await await time.increase(600);
+            const voteReceipt = governance.connect(employee1).voteOnProposal(BigNumber.from(0), false, ethers.utils.parseEther('0.1'));
+
+            expect(voteReceipt).to.emit(governance, 'Voted').withArgs(employee1.address, BigNumber.from(0), true, ethers.utils.parseEther('0.1'));
+        })
+
     });
 
     context("getVoterStatus", () => {
+
+        it("Require - Should revert if called by other than an employee", async () => {
+            const { governance, employee1 } = await loadFixture(deployGovernance);
+
+            await expect(governance.connect(employee1).getVoterStatus(BigNumber.from(0))).to.be.revertedWith("EmployeeCard: This address doesn't have any employee card.");
+        })
+
+        it("Require - Should revert if user is not eligible to governance (no sWID tokens)", async () => {
+            const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
+            await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
+
+            await expect(governance.connect(employee1).getVoterStatus(BigNumber.from(0))).to.be.revertedWith("WorkID Governance: You don't have any voting power.");
+        })
+
         it("Require - Should revert when voting session doesn't exist", async () => {
             const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
 
@@ -506,5 +597,63 @@ describe("Governance Test", function () {
 
             expect(voterStatus).to.equal(false);
         })
+    })
+
+    context("getStackingContractAddress", () => {
+        it("Require - Should revert if called by other than an employee", async () => {
+            const { governance, employee1 } = await loadFixture(deployGovernance);
+            await expect(governance.connect(employee1).getStackingContractAddress()).to.be.revertedWith("EmployeeCard: This address doesn't have any employee card.");
+
+        })
+    })
+
+    context("stackWID", () => {
+        it("Require - Should revert if called by other than an employee", async () => {
+            const { governance, employee1 } = await loadFixture(deployGovernance);
+
+            await expect(governance.connect(employee1).stackWID(15768000, 0)).to.be.revertedWith("EmployeeCard: This address doesn't have any employee card.");
+        })
+    })
+
+    context("unstackWID", () => {
+        it("Require - Should revert if called by other than an employee", async () => {
+            const { governance, employee1 } = await loadFixture(deployGovernance);
+
+            await expect(governance.connect(employee1).unstackWID(0)).to.be.revertedWith("EmployeeCard: This address doesn't have any employee card.");
+        })
+
+        it("UseCase - Should unstack successfully after stacking period", async () => {
+            const { governance, employeeCard, widContract, owner, employee1 } = await loadFixture(deployGovernance);
+            
+            const timestamp = await time.latest();
+            const timestampAfter = dayjs.unix(timestamp).add(7, 'months').unix();
+
+            await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
+
+            const sWIDAddress = await governance.connect(employee1).getStackingContractAddress();
+            await widContract.connect(owner).mint(employee1.address, ethers.utils.parseEther('2'));
+            await widContract.connect(employee1).approve(sWIDAddress, ethers.utils.parseEther('2'));
+
+            await governance.connect(employee1).stackWID(15768000, ethers.utils.parseEther('1'));
+            await governance.connect(employee1).stackWID(31536000, ethers.utils.parseEther('1'));
+
+
+            const WIDbalance1 = await widContract.connect(employee1).balanceOf(employee1.address);
+            const SWIDBalance1 = await governance.connect(employee1).getVotingPower();
+
+            expect(WIDbalance1).to.equal(ethers.utils.parseEther('0'));
+            expect(SWIDBalance1).to.equal(ethers.utils.parseEther('0.3'));
+
+            await time.increaseTo(timestampAfter);
+
+            await governance.connect(employee1).unstackWID(0);
+
+            const WIDbalance2 = await widContract.connect(employee1).balanceOf(employee1.address);
+            const SWIDBalance2 = await governance.connect(employee1).getVotingPower();
+
+            expect(WIDbalance2).to.equal(ethers.utils.parseEther('1'));
+            expect(SWIDBalance2).to.equal(ethers.utils.parseEther('0.2'));
+        })
+
     })
 });
