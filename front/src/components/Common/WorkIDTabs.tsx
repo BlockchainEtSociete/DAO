@@ -38,12 +38,8 @@ const WorkIDTabs = () => {
 
   return (
     <>
-      <Box sx={{ padding: 0, marginLeft: '10px'}}>
-        <img src="/WorkID_logo.png" alt="WorkID" />
-        <p>&nbsp;</p>
-      </Box>
       <Box 
-        sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', height: '100%' }}
+        sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', height: '100%', clear: 'both' }}
       >
           <Tabs 
             orientation="vertical"
