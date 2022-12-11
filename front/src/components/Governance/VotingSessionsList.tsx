@@ -1,8 +1,7 @@
-import { Box, Button } from "@mui/material"
+import { Button } from "@mui/material"
 import { useEffect, useState } from "react"
 import useEthContext from "../../hooks/useEthContext"
 import { getRPCErrorMessage } from "../Common/error"
-import ProposalForm from "./ProposalForm"
 import { SessionStatusId } from "./VotingSession.types"
 import VotingSessionDetail from "./VotingSessionDetail"
 import VotingSessionTile from "./VotingSessionTile"
@@ -71,7 +70,6 @@ const VotingSessionsList = () => {
         {!showVotingDetail && !votingSessions && <p>Loading...</p>}
         {!showVotingDetail && votingSessions && votingSessions.length > 0 &&
             <>
-            <ProposalForm />
             { votingSessions.map((sessionId: number) => 
                 (<div style={{width: "100%"}}><VotingSessionTile sessionId={sessionId} handleSelectedVotingSession={handleSelectedVotingSession}/></div>))
             }

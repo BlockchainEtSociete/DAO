@@ -20,7 +20,10 @@ const Governance = () => {
         <Box sx={{width: "80%"}}>
         {votingPower === 0 && <p>You don't have any voting power</p>}
         {votingPower > 0 &&
+            <>
+            <ProposalForm />
             <VotingSessionsList />
+            </>
         }
         </Box>
     )

@@ -1,5 +1,5 @@
 import { Box, Chip } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import useEthContext from "../../hooks/useEthContext";
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import HubIcon from '@mui/icons-material/Hub';

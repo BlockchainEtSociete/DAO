@@ -72,7 +72,7 @@ const StackForm = ({setWIDBalance, setSWIDBalance}: StackFormProps) => {
         <>
         {widBalance <= 0 && <p>You need to get WID tokens to be able to stack</p>}
         {widBalance > 0 &&
-            <form method="post" id="mintForm" encType="multipart/form-data" onSubmit={handleStacking}>            
+            <form method="post" id="stackingForm" encType="multipart/form-data" onSubmit={handleStacking}>            
                 <div className="form-item">
                     <FormLabel id="vote-label">Amount of WID to stack</FormLabel>
                     <Slider 

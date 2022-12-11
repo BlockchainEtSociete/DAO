@@ -61,8 +61,11 @@ const config: HardhatUserConfig = {
   gasReporter: {
     enabled: true,
     currency: "USD"
+  },
+  dodoc: {
+    runOnCompile: false,
+    debugMode: false,
   }
 };
-
 
 export default config;

@@ -40,7 +40,7 @@ const WIDMinter = ({setWIDBalance}: WIDMinterProps) => {
             const balance = await widContract.methods.balanceOf(accounts[0]).call({from: accounts[0]})
             setWIDBalance(web3.utils.fromWei(web3.utils.BN(balance)))
 
-            setMessage(`Minted ${mintingAmount} WID to ${accounts[0]}`)
+            setMessage(`Minted ${mintingAmount} WID to ${recipient}`)
             setSeverity('success')
             setOpen(true)
             setMinting(false)

@@ -17,7 +17,7 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetailProps) => {
     const [sessionStatus, setSessionStatus] = useState(0)
     const [sessionDetail, setSessionDetail] = useState<SessionDetail | null>()
 
-    const [userVoted, setUserVoted] = useState(false)
+    const [userVoted, setUserVoted] = useState(true)
 
     const [voting, setVoting] = useState(false)
     const [SWIDBalance, setSWIDBalance] = useState(0)
@@ -79,7 +79,8 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetailProps) => {
 
         try {
             await governanceContract.methods.voteOnProposal(sessionId, vote, web3.utils.BN(web3.utils.toWei(`${votingPower}`))).send({from: accounts[0]})
-
+            
+            setUserVoted(true)
             setMessage('Your vote has been submitted. Thank you ! :)')
             setSeverity('success')
             setOpen(true)

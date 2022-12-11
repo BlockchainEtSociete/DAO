@@ -137,7 +137,7 @@ Gets the employee card id.
 function invalidateEmployeeCard(uint256 tokenId, uint256 endTime) external nonpayable
 ```
 
-Invalidates an SBT token.abi
+Invalidates an SBT token.
 
 *Saves the end date (in unix timestamp format) in _tokenEndTimes mapping.*
 

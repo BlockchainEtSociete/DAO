@@ -64,6 +64,8 @@ contract EmployeeCard is ERC5484 {
   /// @param employee Employee address.
   /// @return The employee card id.
   function getEmployeeCardId(address employee) public view returns (uint256) {
+    require(0 < this.balanceOf(employee), "EmployeeCard: This address doesn't have any employee card.");
+
     uint256 employeeTokenId = tokenOfOwnerByIndex(employee, 0);
     _requireMinted(employeeTokenId);
 
@@ -75,13 +77,15 @@ contract EmployeeCard is ERC5484 {
   /// @return True is it's still valid, false otherwise.
   function isTokenValid(uint256 tokenId) public view returns (bool) {
     _requireMinted(tokenId);
+
     return _tokenEndTimes[tokenId] == 0 || _tokenEndTimes[tokenId] >= block.timestamp;
   }
 
-  /// @notice Invalidates an SBT token.abi
+  /// @notice Invalidates an SBT token.
   /// @dev Saves the end date (in unix timestamp format) in _tokenEndTimes mapping.
   /// @param tokenId The token id to invalidate.
   function invalidateEmployeeCard(uint256 tokenId, uint256 endTime) external onlyOwner {
+     _requireMinted(tokenId);
     require(endTime >= block.timestamp, "EmployeeCard: you must specify a end time in the future");
     _tokenEndTimes[tokenId] = endTime;
 
@@ -91,8 +95,7 @@ contract EmployeeCard is ERC5484 {
   /// @notice Burns a card.
   /// @param employee Current holder of the card.
   function burnCard(address employee) external onlyOwner {
-    uint256 employeeTokenId = tokenOfOwnerByIndex(employee, 0);
-    _requireMinted(employeeTokenId);
+    uint256 employeeTokenId = getEmployeeCardId(employee);
 
     _burn(employeeTokenId);
 
@@ -100,15 +103,5 @@ contract EmployeeCard is ERC5484 {
     if (bytes(_tokenURIs[employeeTokenId]).length != 0) {
         delete _tokenURIs[employeeTokenId];
     }
-  }
-
-  /// @notice Receive function to allow to receive tokens.
-  receive() external payable onlyOwner {
-    emit TokenReceived(msg.sender, msg.value);
-  }
-
-  /// @notice Fallback function to track unknown received calls.
-  fallback() external payable onlyOwner {
-    emit CallReceived(msg.sender, msg.value, msg.data);
   }
 }

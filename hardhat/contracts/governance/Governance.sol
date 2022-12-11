@@ -89,15 +89,16 @@ contract Governance is Ownable {
     function unstackWID(uint256 _depositId) onlyEmployee external {
         stackingContract.unstackWID(_depositId, msg.sender);
     }
+
+    // =============  Voting ====================
     
     /// @notice Gets a proposal session details.
     /// @param _sessionId The voting session id.
     /// @return The proposal voting session details for the given _sessionId
     function getOneProposalSession(uint256 _sessionId) external onlyEmployee onlyVoters view returns (ProposalVotingSession memory) {
+        require(_sessionId < votingSessions.length, "Governance: Invalid voting session");
         return votingSessions[_sessionId];
     }
-
-    // =============  Voting ====================
 
     /// @notice Returns the voting power of the caller.
     /// @dev The voting power is represented by the amount of SWID the user has.
@@ -132,7 +133,7 @@ contract Governance is Ownable {
     /// @param _votingSessionId The voting session number.
     /// @return The voting session status.
     function getVotingSessionStatus(uint256 _votingSessionId) external view onlyEmployee onlyVoters returns (VotingSessionStatus) {
-        require(votingSessions[_votingSessionId].startTime > 0, "Voting session doesn't exist");
+        require(_votingSessionId < votingSessions.length, "Governance: Voting session doesn't exist");
 
         if (votingSessions[_votingSessionId].startTime > block.timestamp) {
             return VotingSessionStatus.Pending;
@@ -148,6 +149,8 @@ contract Governance is Ownable {
     /// @param votingSessionId The voting session identifier.
     /// @return True if msg.sender has already voted on this session id.
     function getVoterStatus(uint256 votingSessionId) external onlyEmployee onlyVoters view returns(bool) {
+        require(votingSessionId < votingSessions.length, "Governance: Voting session doesn't exist");
+
         return votingSessionsVoters[votingSessionId][msg.sender].hasVoted;
     }
 
@@ -159,10 +162,10 @@ contract Governance is Ownable {
     /// @param _vote The vote chosen by the voter.
     /// @param _votingPower The amount of SWID the voter want to use for this voting session.
     function voteOnProposal(uint256 _sessionId, bool _vote, uint256 _votingPower) external onlyEmployee onlyVoters {
-        require(votingSessions[_sessionId].startTime > 0, "Voting session doesn't exist");
-        require(votingSessions[_sessionId].startTime < block.timestamp, "Voting session isn't open yet");
-        require(votingSessionsVoters[_sessionId][msg.sender].hasVoted == false, 'You have already voted');
-        require(stackingContract.balanceOf(msg.sender) >= _votingPower, "You don't have enough SWIDs for the chosen amount of voices");
+        require(_sessionId < votingSessions.length, "Governance: Voting session doesn't exist");
+        require(votingSessions[_sessionId].startTime < block.timestamp, "Governance: Voting session isn't open yet");
+        require(votingSessionsVoters[_sessionId][msg.sender].hasVoted == false, 'Governance: You have already voted');
+        require(stackingContract.balanceOf(msg.sender) >= _votingPower, "Governance: You don't have enough SWIDs for the chosen amount of voting power");
 
         _vote ? votingSessions[_sessionId].proposal.voteCountYes+=_votingPower : votingSessions[_sessionId].proposal.voteCountNo+=_votingPower;
         votingSessionsVoters[_sessionId][msg.sender] = Voter(msg.sender, _votingPower, true);
