@@ -6,7 +6,6 @@
   - [Presentation](#presentation)
   - [Live demo](#live-demo)
     - [Public deployment](#public-deployment)
-    - [Live video demonstration](#live-video-demonstration)
   - [Structure](#structure)
   - [Installation](#installation)
   - [Commands](#commands)
@@ -33,11 +32,8 @@ WorkID allows you to track and prove your work experience in the companies you'r
 ### Public deployment
 You can access a live version of this app on these URLs: 
 
-- Any web browser: TODO
-- IPFS enabled web browser (like Brave): TODO
-
-### Live video demonstration
-You can see a demonstration in video at this URL: TODO
+- Any web browser: https://alyra-work-1z337qafg-bpresles.vercel.app/
+- IPFS enabled web browser (like Brave): ipns://alyra-workid.presles.fr/
 
 <a name="structure"></a>
 ## Structure
@@ -178,12 +174,120 @@ TODO
 ### Gas consumption
 
 ```bash
-TODO
+  EmployeeCard Test
+    Deployment
+      ✓ Should get contract address
+    Mint
+      ✓ Require - Should revert when already minted
+      ✓ Require - Should revert when not called by contract issuer
+      ✓ Event - Should mint a new EmployeeCard and emit EmployeeCardMinted event
+      ✓ UseCase - Should have owner of contract approved on tokenId after mint
+    Get employee card id
+      ✓ Require - Should revert on token id invalid
+      ✓ Usecase - Should return the tokenId when it exists
+    tokenURI
+      ✓ Require - Should revert when tokenId don't exist
+      ✓ Usecase - Should return minted token uri
+    isTokenValid
+      ✓ Require - Should revert on token not minted
+      ✓ Require - Should revert on end time in the past
+      ✓ UseCase - Should return that token is valid when no end time is set
+      ✓ UseCase - Should return that token is valid when card has end time in the future
+      ✓ Event - Should event on invalidation
+    Burn card
+      ✓ Require - Should revert on no token for employee
+      ✓ Require - Should revert on not owner msg.sender
+      ✓ UseCase - Should burn token when called by issuer
+
+  Governance Test
+    Deployment
+      ✓ Should get contract address
+    addProposal
+      ✓ Require - Should revert when proposal start time is in the past
+      ✓ Require - Should revert when proposal end time is before start time
+      ✓ Require - Should revert when proposal description is empty
+      ✓ UseCase - Should register proposal
+    getOneProposalSession
+      ✓ Require - Should revert if user is not employee
+      ✓ Require - Should revert if user is not eligible to governance (no sWID tokens)
+      ✓ Require - Revert if sessionId doesn't exists
+      ✓ UseCase - Return proposal session information when it exists
+    getVotingSessionStatus
+      ✓ Require - Should revert when voting session doesn't exist
+      ✓ UseCase - Should return pending when start time is in the future
+      ✓ UseCase - Should return in progress when start time is in the past and end time time in the future
+      ✓ UseCase - Should return ended when end time is in the past
+    getVotingPower
+      ✓ Require - Should revert if not valid employee
+      ✓ Require - Should revert if not voter
+      ✓ UseCase - Should return amount of 0.1 * WID stacked for 6 months period in voting power
+      ✓ UseCase - Should return amount of 0.2 * WID stacked for 1 year period in voting power
+      ✓ UseCase - Should return amount of 0.6 * WID stacked for 3 years period in voting power
+      ✓ UseCase - Should return amount of WID stacked for 5 years period in voting power
+    voteOnProposal
+      ✓ Require - Should revert when voting session doesn't exist
+      ✓ Require - Should revert when session hasn't started yet
+      ✓ Require - Should revert when user has already voted
+      ✓ Require - Should revert when user has not enough voting power
+      ✓ UseCase - Should register vote when user meets all the requirements.
+    getVoterStatus
+      ✓ Require - Should revert when voting session doesn't exist
+      ✓ UseCase - Should return false if user hasn't voted yet
+
+·-------------------------------------------|----------------------------|-------------|-----------------------------·
+|           Solc version: 0.8.17            ·  Optimizer enabled: false  ·  Runs: 200  ·  Block limit: 30000000 gas  │
+············································|····························|·············|······························
+|  Methods                                                                                                           │
+·················|··························|··············|·············|·············|···············|··············
+|  Contract      ·  Method                  ·  Min         ·  Max        ·  Avg        ·  # calls      ·  usd (avg)  │
+·················|··························|··············|·············|·············|···············|··············
+|  EmployeeCard  ·  burnCard                ·           -  ·          -  ·      60870  ·            1  ·          -  │
+·················|··························|··············|·············|·············|···············|··············
+|  EmployeeCard  ·  invalidateEmployeeCard  ·           -  ·          -  ·      50402  ·            3  ·          -  │
+·················|··························|··············|·············|·············|···············|··············
+|  EmployeeCard  ·  mint                    ·           -  ·          -  ·     223302  ·           34  ·          -  │
+·················|··························|··············|·············|·············|···············|··············
+|  Governance    ·  addProposal             ·           -  ·          -  ·     142194  ·           11  ·          -  │
+·················|··························|··············|·············|·············|···············|··············
+|  Governance    ·  stackWID                ·      244112  ·     244521  ·     244430  ·           21  ·          -  │
+·················|··························|··············|·············|·············|···············|··············
+|  Governance    ·  voteOnProposal          ·           -  ·          -  ·     142989  ·            3  ·          -  │
+·················|··························|··············|·············|·············|···············|··············
+|  WID           ·  approve                 ·           -  ·          -  ·      46911  ·           21  ·          -  │
+·················|··························|··············|·············|·············|···············|··············
+|  WID           ·  mint                    ·           -  ·          -  ·      71235  ·           21  ·          -  │
+·················|··························|··············|·············|·············|···············|··············
+|  Deployments                              ·                                          ·  % of limit   ·             │
+············································|··············|·············|·············|···············|··············
+|  EmployeeCard                             ·           -  ·          -  ·    3775694  ·       12.6 %  ·          -  │
+············································|··············|·············|·············|···············|··············
+|  Governance                               ·           -  ·          -  ·    5187283  ·       17.3 %  ·          -  │
+············································|··············|·············|·············|···············|··············
+|  WID                                      ·           -  ·          -  ·    1628060  ·        5.4 %  ·          -  │
+·-------------------------------------------|--------------|-------------|-------------|---------------|-------------·
+
+  43 passing (8s)
+
+✨  Done in 10.86s.
 ```
 
 <a href="coverage"></a>
 ### Coverage
 
 ```bash
-TODO
+-------------------------|----------|----------|----------|----------|----------------|
+File                     |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
+-------------------------|----------|----------|----------|----------|----------------|
+ governance/             |    80.77 |       70 |    83.33 |    83.08 |                |
+  Governance.sol         |    96.55 |    76.67 |    91.67 |    97.37 |             90 |
+  SWID.sol               |     61.9 |    61.54 |    66.67 |       64 |... 103,105,106 |
+  WID.sol                |       50 |       25 |    66.67 |       50 |             18 |
+ identity/               |      100 |    81.82 |      100 |      100 |                |
+  EmployeeCard.sol       |      100 |    81.82 |      100 |      100 |                |
+ identity/token/ERC5484/ |       60 |    33.33 |    66.67 |    53.85 |                |
+  ERC5484.sol            |       60 |    33.33 |    66.67 |    53.85 |... 79,82,97,99 |
+  IERC5484.sol           |      100 |      100 |      100 |      100 |                |
+-------------------------|----------|----------|----------|----------|----------------|
+All files                |    82.02 |    66.92 |    84.38 |     83.5 |                |
+-------------------------|----------|----------|----------|----------|----------------|
 ```
