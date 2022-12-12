@@ -81,6 +81,14 @@ contract EmployeeCard is ERC5484 {
     return _tokenEndTimes[tokenId] == 0 || _tokenEndTimes[tokenId] >= block.timestamp;
   }
 
+  /// @notice Gets an employee card SBT end time.
+  /// @return End time in unix timestamp format. It returns 0 if the card doesn't have end time yet.
+  function getEmployeeCardEndTime(uint256 tokenId) external view returns(uint256) {
+     _requireMinted(tokenId);
+
+     return _tokenEndTimes[tokenId];
+  }
+
   /// @notice Invalidates an SBT token.
   /// @dev Saves the end date (in unix timestamp format) in _tokenEndTimes mapping.
   /// @param tokenId The token id to invalidate.

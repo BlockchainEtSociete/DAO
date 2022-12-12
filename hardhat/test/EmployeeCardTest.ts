@@ -1,4 +1,4 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { BigNumber } from "ethers";
@@ -141,6 +141,34 @@ describe("EmployeeCard Test", function () {
       expect(invalidationReceipt).to.emit(employeeCard, 'EmployeeCardEnded').withArgs(1, endTime);
     })
   });
+
+  context("getEmployeeCardEndTime", async () => {
+    it("Require - Should revert when card not minted", async () => {
+      const { employeeCard, owner, employee1 } = await loadFixture(deployEmployeeCard);
+
+      await expect(employeeCard.connect(owner).getEmployeeCardEndTime(BigNumber.from(1))).to.be.revertedWith("ERC721: invalid token ID");
+    })
+    it("UseCase - Should return 0 when card hasn't been invalidated", async () => {
+      const { employeeCard, owner, employee1 } = await loadFixture(deployEmployeeCard);
+
+      await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
+      const endTime = await employeeCard.connect(owner).getEmployeeCardEndTime(BigNumber.from(1));
+
+      expect(endTime).to.equal(0);
+    })
+    it("UseCase - Should return endTime when it has been set", async () => {
+      const { employeeCard, owner, employee1 } = await loadFixture(deployEmployeeCard);
+
+      const endTimestamp = dayjs.unix(await time.latest()).add(1, 'day').unix();
+      await employeeCard.connect(owner).mint(employee1.address, 'https://www.alyra.fr');
+
+      await employeeCard.connect(owner).invalidateEmployeeCard(BigNumber.from(1), BigNumber.from(endTimestamp));
+
+      const endTime = await employeeCard.connect(owner).getEmployeeCardEndTime(BigNumber.from(1));
+
+      expect(endTime).to.equal(endTimestamp);
+    })
+  })
 
   context("Burn card", () => {
     it("Require - Should revert on no token for employee", async () => {

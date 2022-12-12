@@ -50,7 +50,7 @@ const WorkIDTabs = () => {
             <Tab label="Home" value='/' to='/' component={Link} />
             {connectedUser === owner && <Tab label="Employer" value='/employer' to='/employer' component={Link} />}
             {connectedUser === owner && <Tab label="Employees list" value='/employees-list' to='/employees-list' component={Link} />}
-            <Tab label="Employee"  value='/employee' to='/employee' component={Link}  />
+            <Tab label="My Profile"  value='/employee' to='/employee' component={Link}  />
             <Tab label="Stacking" value='/stacking' to='/stacking' component={Link} />
             <Tab label="Governance" value='/governance' to='/governance' component={Link} />
           </Tabs>          

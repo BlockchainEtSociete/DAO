@@ -79,7 +79,7 @@ const EmployeeCardList = () => {
 
                 await contract.events.EmployeeCardMinted({fromBlock: 'earliest'})
                     .on('data', async (event: any) => {
-                        addEmployeeCardToList(event.returnValues.tokenId)
+                        await addEmployeeCardToList(event.returnValues.tokenId)
                     })
                     .on('changed', (changed: string) => console.log(changed))
                     .on('error', (error: string) => console.log(error))
@@ -90,7 +90,7 @@ const EmployeeCardList = () => {
                 console.log(reason)
             }
         })()
-    })
+    }, [accounts, contract, employeeCards])
 
     return (
         <>

@@ -1,7 +1,8 @@
-import { Button, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
+import { AlertColor, Button, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 import useEthContext from "../../hooks/useEthContext";
 import ipfs from "../Common/Ipfs";
+import SnackbarAlert from "../Common/SnackbarAlert";
 import EmployeeCardImageDisplay from "./EmployeeCardImageDisplay";
 import EmployeeCardImageGenerator, { generateCardImage } from "./EmployeeCardImageGenerator";
 import TokenBalance from "./TokenBalance";
@@ -56,8 +57,6 @@ const EmployeeCardGenerator = () => {
 
     // manage minting state
     const [minting, setMinting] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -71,6 +70,10 @@ const EmployeeCardGenerator = () => {
     const [, setFile] = useState(null);
     const [wallet, setWallet] = useState('');
     const [walletBalance, setWalletBalance] = useState(0);
+
+    const [open, setOpen] = useState(false)
+    const [message, setMessage] = useState('')
+    const [severity, setSeverity] = useState<AlertColor | undefined>('success')
 
     const [cardInfos, setCardInfos] = useState({
         firstName: '',
@@ -113,7 +116,7 @@ const EmployeeCardGenerator = () => {
         }
     };
     const handleWalletAddress = async (event: ChangeEvent<HTMLInputElement>) => {
-        setErrorMessage('');
+        setOpen(false) 
         setWalletBalance(0);
         setTokenId('');
         setWallet(event.target.value);
@@ -131,10 +134,9 @@ const EmployeeCardGenerator = () => {
                 const tokenId = await contract.methods.getEmployeeCardId(event.target.value).call({from: accounts[0]})
                 setTokenId(tokenId)
 
-                setErrorMessage('An employee can only have 1 card.');
-            }
-            else {
-                setErrorMessage('');
+                setMessage('An employee can only have 1 card.')
+                setSeverity('error')
+                setOpen(true) 
             }
         }
     }
@@ -144,11 +146,15 @@ const EmployeeCardGenerator = () => {
 
         const mintedTokenId = await contract?.methods.mint(wallet, tokenURI).send({from: accounts[0]})
         .on("transactionHash", async (transactionHash: string   ) => {
-            setSuccessMessage(`Minting in progress, transaction number: Transaction number: ${transactionHash}`);
+            setMessage(`Minting in progress, transaction number: Transaction number: ${transactionHash}`)
+            setSeverity('success')
+            setOpen(true) 
         })
         .catch ((mintErr: Error) => {
             console.log(mintErr.message);
-            setErrorMessage(`Minting: ${mintErr.message}`);
+            setMessage(`Minting: ${mintErr.message}`)
+            setSeverity('error')
+            setOpen(true)
 
             setMinting(false);
 
@@ -156,7 +162,9 @@ const EmployeeCardGenerator = () => {
         });
 
         setTokenId(mintedTokenId);
-        setSuccessMessage(`Minting finished ! :)`);
+        setMessage('Minting finished ! :)')
+        setSeverity('success')
+        setOpen(true) 
 
         return true;
     }
@@ -214,7 +222,10 @@ const EmployeeCardGenerator = () => {
         const metadataString = JSON.stringify(NFTMetaData);
         const ipfsResponse = await ipfs.add(metadataString, {pin:true}).catch((err: Error) => {
             console.log(err.message);
-            setErrorMessage(`IPFS: ${err.message}`);
+
+            setMessage(`IPFS: ${err.message}`)
+            setSeverity('error')
+            setOpen(true)
 
             setMinting(false);
         });
@@ -234,30 +245,40 @@ const EmployeeCardGenerator = () => {
     const validateFormAndMint = async (event: any) => {
         event.preventDefault();
         setMinting(false);
-        setErrorMessage('');
         
         const dateFormatRegex = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/;
         if (!birthDate.match(dateFormatRegex)) {
-            alert("Invalid birth date");
+            setMessage('Invalid birth date')
+            setSeverity('error')
+            setOpen(true)
             return false;
         }
         if (!startDate.match(dateFormatRegex)) {
-            alert("Invalid start date");
+            setMessage('Invalid start date')
+            setSeverity('error')
+            setOpen(true)
             return false;
         }
 
         if (!firstName || firstName.length === 0) {
-            alert("Firstname is mandatory");
+            setMessage('Firstname is mandatory')
+            setSeverity('error')
+            setOpen(true)
             return false;
         }
 
         if (!lastName || lastName.length === 0) {
-            alert("Lastname is mandatory");
+            setMessage('Lastname is mandatory')
+            setSeverity('error')
+            setOpen(true)
             return false;
         }
 
         if (!picture) {
-            alert("You must upload a picture");
+            setMessage('You must upload a picture')
+            setSeverity('error')
+            setOpen(true)
+            return false;
         }
 
 
@@ -277,7 +298,9 @@ const EmployeeCardGenerator = () => {
         const pictureFile = await dataUrlToFile(`data:image/*;${newCardInfos.photo}`)
         const ipfsPictureUploadResult = await ipfs.add(pictureFile, {pin:true}).catch((err: Error) => {
             console.log(err.message);
-            setErrorMessage(`IPFS: ${err.message}`);
+            setMessage(`IPFS: ${err.message}`)
+            setSeverity('error')
+            setOpen(true)
 
             setMinting(false);
         });
@@ -295,7 +318,9 @@ const EmployeeCardGenerator = () => {
 
                 const ipfsImageUploadResult = await ipfs.add(cardFile, {pin:true}).catch((err: Error) => {
                     console.log(err.message)
-                    setErrorMessage(`IPFS: ${err.message}`)
+                    setMessage(`IPFS: ${err.message}`)
+                    setSeverity('error')
+                    setOpen(true)
 
                     setMinting(false)
                 });
@@ -342,8 +367,6 @@ const EmployeeCardGenerator = () => {
             <div style={{margin: '20px'}}>
                 <TokenBalance account={wallet} />
                 <EmployeeCardImageDisplay tokenId={tokenId} />
-                <div className="success_message">{successMessage}</div>
-                <div className="error_message">{errorMessage}</div>
                 <form method="post" id="mintForm" encType="multipart/form-data" onSubmit={validateFormAndMint}>
                     <div className="form-item">
                         <TextField fullWidth={true} name="ethaddress" label="Employee Ethereum wallet address" onChange={handleWalletAddress}></TextField>
@@ -394,6 +417,7 @@ const EmployeeCardGenerator = () => {
                 </form>
                 <EmployeeCardImageGenerator cardInfos={cardInfos} cardDataUrl={cardDataUrl} />
             </div>
+            <SnackbarAlert open={open} setOpen={setOpen} message={message} severity={severity} />
 
             <style>{`
                 .form-item {
