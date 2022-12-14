@@ -129,7 +129,7 @@ const VotingSessionDetail = ({sessionId}: VotingSessionDetailProps) => {
                 </div>
                 <div className="form-item" style={{textAlign: 'center'}}>
                     <Button variant="contained" type="submit" disabled={voting}>
-                        Propose to vote
+                        Vote
                     </Button>
                 </div>
             </form>
