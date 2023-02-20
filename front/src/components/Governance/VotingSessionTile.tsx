@@ -71,19 +71,19 @@ const VotingSessionTile = ({ sessionId, handleSelectedVotingSession }: VotingSes
     return (
         <>
             <figure className="voting-tile" onClick={handleVotingSessionClick}>
-                <div><span>Session id:</span> {sessionId}</div>
-                <div><span>Status:</span> {SessionStatus[sessionStatus]}</div>
+                <div><span>Identifiant de session:</span> {sessionId}</div>
+                <div><span>Etat:</span> {SessionStatus[sessionStatus]}</div>
                 <br/>
                 <div>{sessionDetail?.proposal.description}</div>
                 <br/>
-                <div><span>Voting starting:</span> {sessionDetail && dayjs.unix(sessionDetail.startTime).format('DD/MM/YYYY HH:mm:ss')}</div>
-                <div><span>Voting ending:</span> {sessionDetail && dayjs.unix(sessionDetail.endTime).format('DD/MM/YYYY HH:mm:ss')}</div>
+                <div><span>Heure de début des votes:</span> {sessionDetail && dayjs.unix(sessionDetail.startTime).format('DD/MM/YYYY HH:mm:ss')}</div>
+                <div><span>Heure de fin des votes:</span> {sessionDetail && dayjs.unix(sessionDetail.endTime).format('DD/MM/YYYY HH:mm:ss')}</div>
                 
                 {sessionStatus === SessionStatusId.Ended &&
                     <>
                         <br/>
-                        <div><span>Yes:</span> {web3.utils.fromWei(sessionDetail?.proposal.voteCountYes)}</div>
-                        <div><span>No:</span> {web3.utils.fromWei(sessionDetail?.proposal.voteCountNo)}</div>
+                        <div><span>Oui:</span> {sessionDetail?.proposal.voteCountYes}</div>
+                        <div><span>Non:</span> {sessionDetail?.proposal.voteCountNo}</div>
                     </>
                 }
             </figure>

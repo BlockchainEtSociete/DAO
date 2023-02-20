@@ -3,10 +3,10 @@ const Home = () => {
     return (
         <div>
              <h1>
-                Welcome to WorkID
+                Bienvenue chez Blockchain & Société
             </h1>
 
-            <p>Your work decentralized identity and proof of experience</p>
+            <p>Gérez votre adhésion et votez pour des propositions</p>
         </div>
     )
 }

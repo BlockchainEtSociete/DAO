@@ -62,7 +62,7 @@ const ProposalForm = () => {
             <div className="form-item">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DesktopDateTimePicker
-                    label="Start date"
+                    label="Heure de début des votes"
                     inputFormat="DD/MM/YYYY HH:mm:ss"
                     value={dayjs.unix(proposalStartTime)}
                     onChange={handleStartDate}
@@ -73,7 +73,7 @@ const ProposalForm = () => {
             <div className="form-item">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DesktopDateTimePicker
-                    label="End date"
+                    label="Heure de fin des votes"
                     inputFormat="DD/MM/YYYY HH:mm:ss"
                     value={dayjs.unix(proposalEndTime)}
                     onChange={handleEndDate}
@@ -83,7 +83,7 @@ const ProposalForm = () => {
             </div>
             <div className="form-item" style={{textAlign: 'center'}}>
                 <Button variant="contained" type="submit" disabled={sending}>
-                    Propose to vote
+                    Proposer
                 </Button>
             </div>
         </form>

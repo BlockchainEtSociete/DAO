@@ -66,8 +66,8 @@ const VotingSessionsList = () => {
 
     return (
         <>
-        {!showVotingDetail && votingSessions && votingSessions.length === 0 && <p>No voting session yet</p>}
-        {!showVotingDetail && !votingSessions && <p>Loading...</p>}
+        {!showVotingDetail && votingSessions && votingSessions.length === 0 && <p>Aucune session de vote pour le moment.</p>}
+        {!showVotingDetail && !votingSessions && <p>Chargement...</p>}
         {!showVotingDetail && votingSessions && votingSessions.length > 0 &&
             <>
             { votingSessions.map((sessionId: number) => 

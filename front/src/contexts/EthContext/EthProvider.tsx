@@ -15,27 +15,23 @@ const EthProvider = ({ children }: EthProviderProps) => {
   const init = useCallback(
     async (
       cardArtifact: any,
-      widArtifact: any,
       governanceArtifact: any
     ) => {
-      if (cardArtifact && widArtifact && governanceArtifact) {
+      if (cardArtifact && governanceArtifact) {
         const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
         const accounts = await web3.eth.requestAccounts();
         const networkID = await web3.eth.net.getId();
         let owner, widOwner, governanceOwner;
 
         const abi = cardArtifact.abi;
-        const widAbi= widArtifact.abi;
 
         const governanceAbi = governanceArtifact.abi;
         let contract, widContract, governanceContract;
         try {
-          if (cardArtifact.address && widArtifact.address && governanceArtifact.address) {
+          if (cardArtifact.address && governanceArtifact.address) {
             contract = new web3.eth.Contract(abi, cardArtifact.address);
-            widContract = new web3.eth.Contract(widAbi, widArtifact.address);
             governanceContract = new web3.eth.Contract(governanceAbi, governanceArtifact.address);
             owner = await contract.methods.owner().call();
-            widOwner = await widContract.methods.owner().call();
             governanceOwner = await governanceContract.methods.owner().call();
           }
         } catch (err) {
@@ -44,7 +40,7 @@ const EthProvider = ({ children }: EthProviderProps) => {
         
         dispatch({
           type: actions.init,
-          data: { cardArtifact, widArtifact, governanceArtifact, web3, accounts, networkID, contract, widContract, governanceContract, owner, widOwner, governanceOwner }
+          data: { cardArtifact, governanceArtifact, web3, accounts, networkID, contract, widContract, governanceContract, owner, widOwner, governanceOwner }
         });
       }
     }, []);
@@ -52,12 +48,11 @@ const EthProvider = ({ children }: EthProviderProps) => {
   useEffect(() => {
     const tryInit = async () => {
       try {
-        const networkName = "mumbai";
+        const networkName = "ganache";
 
-        const cardArtifact = require(`../../contracts/${networkName}/EmployeeCard.json`);
-        const widArtifact = require(`../../contracts/${networkName}/WID.json`);
+        const cardArtifact = require(`../../contracts/${networkName}/MemberCard.json`);
         const governanceArtifact = require(`../../contracts/${networkName}/Governance.json`);
-        init(cardArtifact, widArtifact, governanceArtifact);
+        init(cardArtifact, governanceArtifact);
       } catch (err) {
         console.error(err);
       }
@@ -69,7 +64,7 @@ const EthProvider = ({ children }: EthProviderProps) => {
   useEffect(() => {
     const events = ["chainChanged", "accountsChanged"];
     const handleChange = () => {
-      init(state.cardArtifact, state.widArtifact, state.governanceArtifact);
+      init(state.cardArtifact, state.governanceArtifact);
     };
 
     events.forEach(e => window.ethereum.on(e, handleChange));

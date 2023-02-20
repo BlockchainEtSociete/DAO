@@ -1,20 +1,19 @@
 import { Landscape } from "@mui/icons-material";
 import html2pdf from "../../util/html2pdf";
 
-export interface EmployeeCardInfos { 
+export interface MemberCardInfos { 
     firstName: string;
     lastName: string;
-    birthDate: string;
     startDate: string;
     photo: string;
 }
 
-export interface EmployeeCardImageGeneratorProps {
-    cardInfos: EmployeeCardInfos,
+export interface MemberCardImageGeneratorProps {
+    cardInfos: MemberCardInfos,
     cardDataUrl: string
 }
 
-export const generateCardImage = async (cardInfos: EmployeeCardInfos) => {
+export const generateCardImage = async (cardInfos: MemberCardInfos) => {
     if (cardInfos.photo !== '') {
         const element = document.getElementById('cardPdf');
         if (element) {
@@ -38,7 +37,7 @@ export const generateCardImage = async (cardInfos: EmployeeCardInfos) => {
     return '';
 }
 
-export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCardImageGeneratorProps) => {
+export const MemberCardImageGenerator = ({cardInfos, cardDataUrl}: MemberCardImageGeneratorProps) => {
     return (
         <>
             <div>
@@ -47,23 +46,22 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
             <div id="cardPdf" style={{display: 'none'}}>
                 <div className="logos">
                     <div className="companyLogo">
-                        <img src="/logo.png" alt="Logo" id="companyLogo" />
+                        <img src="/BS_small.png" alt="Logo" id="companyLogo" />
                     </div>
                     <div className="pictureBrand">
-                        <img src="/WorkID_small.png" alt="WorkID" />
+                        Blockchain & Société
                     </div>
                 </div>
-                <div className="employeeDetails">
-                    <div className="employeePicture">
+                <div className="memberDetails">
+                    <div className="memberPicture">
                         <div className="picture">
-                            <img src={`data:image/*;${cardInfos.photo}`} alt="Employee" id="employeePicture" />
+                            <img src={`data:image/*;${cardInfos.photo}`} alt="Member" id="memberPicture" />
                         </div>
                     </div>
-                    <div className="employeeCardDetails">
-                        <div id="employeeFirstname"><span className="label">Firstname:</span> {cardInfos.firstName}</div>
-                        <div id="employeeLastname"><span className="label">Lastname:</span> {cardInfos.lastName}</div>
-                        <div id="employeeBirthdate"><span className="label">Birth date:</span> {cardInfos.birthDate}</div>
-                        <div id="employeeStartdate"><span className="label">Start date:</span> {cardInfos.startDate}</div>
+                    <div className="memberCardDetails">
+                        <div id="memberFirstname"><span className="label">Firstname:</span> {cardInfos.firstName}</div>
+                        <div id="memberLastname"><span className="label">Lastname:</span> {cardInfos.lastName}</div>
+                        <div id="memberStartdate"><span className="label">Start date:</span> {cardInfos.startDate}</div>
                     </div>
                 </div>
             </div>  
@@ -91,6 +89,8 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
                     text-align: right;
                     float: right;
                     margin-top: 30px;
+                    font-weight: 800;
+                    font-size: 1.5rem;
                 }
                 #cardPdf .companyLogo > img {
                     position: absolute;
@@ -99,25 +99,25 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
                     width: 60px;
                     height: 60px;
                 }
-                #cardPdf .employeeDetails {
+                #cardPdf .memberDetails {
                     clear: both;
-                    padding: 20px 0 0 90px;
+                    padding: 40px 0 0 90px;
                 }
-                #cardPdf .employeePicture {
+                #cardPdf .memberPicture {
                     float: none;
                     clear: both;
                 }
-                #cardPdf .employeePicture .picture {
+                #cardPdf .memberPicture .picture {
                     float: left;
                 }
-                #cardPdf .employeePicture .picture > img {
+                #cardPdf .memberPicture .picture > img {
                     width: 100px;
                     height: 100px;
                 }
                 #cardPdf span.label {
                     font-weight: bold;
                 }
-                #cardPdf .employeeCardDetails {
+                #cardPdf .memberCardDetails {
                     float: left;
                     margin: 8px 0 0 20px;
                 }
@@ -126,4 +126,4 @@ export const EmployeeCardImageGenerator = ({cardInfos, cardDataUrl}: EmployeeCar
     )
 }
 
-export default EmployeeCardImageGenerator
+export default MemberCardImageGenerator

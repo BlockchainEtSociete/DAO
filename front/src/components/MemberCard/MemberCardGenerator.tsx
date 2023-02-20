@@ -3,11 +3,11 @@ import { ChangeEvent, useState } from "react";
 import useEthContext from "../../hooks/useEthContext";
 import ipfs from "../Common/Ipfs";
 import SnackbarAlert from "../Common/SnackbarAlert";
-import EmployeeCardImageDisplay from "./EmployeeCardImageDisplay";
-import EmployeeCardImageGenerator, { generateCardImage } from "./EmployeeCardImageGenerator";
+import MemberCardImageDisplay from "./MemberCardImageDisplay";
+import MemberCardImageGenerator, { generateCardImage } from "./MemberCardImageGenerator";
 import TokenBalance from "./TokenBalance";
 
-export interface EmployeeCardMetadata {
+export interface MemberCardMetadata {
     "description": string; 
     "external_url": string;
     "image": string;
@@ -26,33 +26,13 @@ export interface EmployeeCardMetadata {
             "value": string;
         },
         {
-            "trait_type": "Role",
-            "value": string;
-        },
-        {
-            "trait_type": "Service",
-            "value": string;
-        },
-        {
-            "trait_type": "Contract type",
-            "value": string;
-        },
-        {
-            "trait_type": "Contract category",
-            "value": string;
-        },
-        {
-            "trait_type": "Birth date",
-            "value": string;
-        },
-        {
             "trait_type": "Start date",
             "value": string;
         },
     ]
 }
 
-const EmployeeCardGenerator = () => {
+const MemberCardGenerator = () => {
     const { state: { contract, accounts } } = useEthContext()
 
     // manage minting state
@@ -60,12 +40,7 @@ const EmployeeCardGenerator = () => {
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [birthDate, setBirthDate] = useState('');
     const [startDate, setStartDate] = useState('');
-    const [service, setService] = useState('');
-    const [role, setRole] = useState('');
-    const [contractType, setContractType] = useState('');
-    const [contractCategory, setContractCategory] = useState('');
     const [picture, setPicture] = useState('');
     const [, setFile] = useState(null);
     const [wallet, setWallet] = useState('');
@@ -78,7 +53,6 @@ const EmployeeCardGenerator = () => {
     const [cardInfos, setCardInfos] = useState({
         firstName: '',
         lastName: '',
-        birthDate: '',
         startDate: '',
         photo: ''
     });
@@ -91,24 +65,9 @@ const EmployeeCardGenerator = () => {
     const handleLastNameChange = (event: ChangeEvent<HTMLInputElement>) => {
         setLastName(event.target.value);
     };
-    const handleBirthDateChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setBirthDate(event.target.value);
-    };
     const handleStartDateChange = (event: ChangeEvent<HTMLInputElement>) => {
         setStartDate(event.target.value);
     };
-    const handleServiceChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setService(event.target.value);
-    }
-    const handleRoleChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setRole(event.target.value);
-    }
-    const handleContractTypeChange = (event: SelectChangeEvent<string>) => {
-        setContractType(event.target.value);
-    }
-    const handleContractCategoryChange = (event: SelectChangeEvent<string>) => {
-        setContractCategory(event.target.value);
-    }
     const handlePictureChange = (event: ChangeEvent<HTMLInputElement>) => {
         const filesUploaded = event.currentTarget.files;
         if (filesUploaded && filesUploaded.length > 0) {
@@ -131,10 +90,10 @@ const EmployeeCardGenerator = () => {
             setWalletBalance(userBalance);
 
             if (userBalance > 0) {
-                const tokenId = await contract.methods.getEmployeeCardId(event.target.value).call({from: accounts[0]})
+                const tokenId = await contract.methods.getMemberCardId(event.target.value).call({from: accounts[0]})
                 setTokenId(tokenId)
 
-                setMessage('An employee can only have 1 card.')
+                setMessage('An member can only have 1 card.')
                 setSeverity('error')
                 setOpen(true) 
             }
@@ -174,11 +133,11 @@ const EmployeeCardGenerator = () => {
         pictureUri: string, 
         newCardInfos: any,
     ) => {
-        const NFTMetaData: EmployeeCardMetadata = {
+        const NFTMetaData: MemberCardMetadata = {
             "description": "Professional decentralized identity and proof of experience.", 
             "external_url": "https://www.alyra.fr", 
             "image": imageUri, 
-            "name": "Alyra Employee Card",
+            "name": "Alyra Member Card",
             "attributes": [
                 {
                     "trait_type": "Picture",
@@ -191,26 +150,6 @@ const EmployeeCardGenerator = () => {
                 {
                     "trait_type": "Lastname",
                     "value": newCardInfos.lastName,
-                },
-                {
-                    "trait_type": "Role",
-                    "value": newCardInfos.role,
-                },
-                {
-                    "trait_type": "Service",
-                    "value": newCardInfos.service,
-                },
-                {
-                    "trait_type": "Contract type",
-                    "value": newCardInfos.contractType,
-                },
-                {
-                    "trait_type": "Contract category",
-                    "value": newCardInfos.contractCategory,
-                },
-                {
-                    "trait_type": "Birth date",
-                    "value": newCardInfos.birthDate,
                 },
                 {
                     "trait_type": "Start date",
@@ -247,12 +186,6 @@ const EmployeeCardGenerator = () => {
         setMinting(false);
         
         const dateFormatRegex = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/;
-        if (!birthDate.match(dateFormatRegex)) {
-            setMessage('Invalid birth date')
-            setSeverity('error')
-            setOpen(true)
-            return false;
-        }
         if (!startDate.match(dateFormatRegex)) {
             setMessage('Invalid start date')
             setSeverity('error')
@@ -285,12 +218,7 @@ const EmployeeCardGenerator = () => {
         const newCardInfos = {
             firstName,
             lastName,
-            birthDate,
             startDate,
-            service,
-            role,
-            contractType,
-            contractCategory,
             photo: picture
         };
         setCardInfos(newCardInfos);
@@ -366,44 +294,19 @@ const EmployeeCardGenerator = () => {
         <div>
             <div style={{margin: '20px'}}>
                 <TokenBalance account={wallet} />
-                <EmployeeCardImageDisplay tokenId={tokenId} />
+                <MemberCardImageDisplay tokenId={tokenId} />
                 <form method="post" id="mintForm" encType="multipart/form-data" onSubmit={validateFormAndMint}>
                     <div className="form-item">
-                        <TextField fullWidth={true} name="ethaddress" label="Employee Ethereum wallet address" onChange={handleWalletAddress}></TextField>
+                        <TextField fullWidth={true} name="ethaddress" label="Adresse Ethereum du membre" onChange={handleWalletAddress}></TextField>
                     </div>
                     <div className="form-item">
-                        <TextField fullWidth={true} name="firstname" label="Firstname" onChange={handleFirstNameChange}></TextField>
+                        <TextField fullWidth={true} name="firstname" label="Prénom" onChange={handleFirstNameChange}></TextField>
                     </div>
                     <div className="form-item">
-                        <TextField fullWidth={true} name="lastname" label="Lastname" onChange={handleLastNameChange}></TextField>
+                        <TextField fullWidth={true} name="lastname" label="Nom" onChange={handleLastNameChange}></TextField>
                     </div>
                     <div className="form-item">
-                        <TextField fullWidth={true} name="birthdate" label="Birth date" onChange={handleBirthDateChange}></TextField>
-                    </div>
-                    <div className="form-item">
-                        <TextField fullWidth={true} name="startdate" label="Start date" onChange={handleStartDateChange}></TextField>
-                    </div>
-                    <div className="form-item">
-                        <TextField fullWidth={true} name="service" label="Service" onChange={handleServiceChange}></TextField>
-                    </div>
-                    <div className="form-item">
-                        <TextField fullWidth={true} name="role" label="Role" onChange={handleRoleChange}></TextField>
-                    </div>
-                    <div className="form-item">
-                        <InputLabel id="contract-type-label">Contract type</InputLabel>
-                        <Select fullWidth={true} name="contract_type" labelId="contract-type-label" onChange={handleContractTypeChange}>
-                            <MenuItem value={'CDI'}>CDI</MenuItem>
-                            <MenuItem value={'CDD'}>CDD</MenuItem>
-                            <MenuItem value={'Freelance'}>Freelance</MenuItem>
-                            <MenuItem value={'Interim'}>Interim</MenuItem>
-                        </Select>
-                    </div>
-                    <div className="form-item">
-                        <InputLabel id="contract-type-label">Contract category</InputLabel>
-                        <Select fullWidth={true} name="contract_category" labelId="contract-category-label" onChange={handleContractCategoryChange}>
-                            <MenuItem value={'Employee'}>Employee</MenuItem>
-                            <MenuItem value={'Executive'}>Executive</MenuItem>
-                        </Select>
+                        <TextField fullWidth={true} name="startdate" label="Date de début d'adhésion" onChange={handleStartDateChange}></TextField>
                     </div>
                     <div className="form-item">
                         <InputLabel>Photo</InputLabel>
@@ -411,11 +314,11 @@ const EmployeeCardGenerator = () => {
                     </div>
                     <div className="form-item" style={{textAlign: 'center'}}>
                         <Button variant="contained" type="submit" disabled={minting || walletBalance > 0}>
-                            Mint the employee card
+                            Générer la carte de membre
                         </Button>
                     </div>
                 </form>
-                <EmployeeCardImageGenerator cardInfos={cardInfos} cardDataUrl={cardDataUrl} />
+                <MemberCardImageGenerator cardInfos={cardInfos} cardDataUrl={cardDataUrl} />
             </div>
             <SnackbarAlert open={open} setOpen={setOpen} message={message} severity={severity} />
 
@@ -439,4 +342,4 @@ const EmployeeCardGenerator = () => {
     );
 };
 
-export default EmployeeCardGenerator;
+export default MemberCardGenerator;

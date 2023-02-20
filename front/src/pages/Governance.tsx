@@ -5,21 +5,22 @@ import VotingSessionsList from "../components/Governance/VotingSessionsList"
 import useEthContext from "../hooks/useEthContext"
 
 const Governance = () => {
-    const { state: { widContract, governanceContract, accounts, web3 } } = useEthContext()
+    const { state: { contract, accounts, web3 } } = useEthContext()
 
-    const [votingPower, setVotingPower] = useState(0)
+    const [isValidMember, setIsValidMember] = useState(false)
 
     useEffect(() => {
         (async () => {
-            const swidBalance = await governanceContract.methods.getVotingPower().call({from: accounts[0]})
-            setVotingPower(web3.utils.fromWei(web3.utils.BN(swidBalance)))
+            const foundTokenId = await contract.methods.getMemberCardId(accounts[0]).call({from: accounts[0]})
+            const cardValid = await contract.methods.isTokenValid(foundTokenId).call({from: accounts[0]})
+            setIsValidMember(cardValid)
         })()
-    }, [accounts, widContract, web3, governanceContract.methods])
+    }, [accounts, web3, contract.methods])
 
     return (
         <Box sx={{width: "80%"}}>
-        {votingPower === 0 && <p>You don't have any voting power</p>}
-        {votingPower > 0 &&
+        {!isValidMember && <p>Vous n'avez aucune carte de membre valide</p>}
+        {isValidMember &&
             <>
             <ProposalForm />
             <VotingSessionsList />

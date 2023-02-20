@@ -4,11 +4,11 @@ import useEthContext from "../../hooks/useEthContext"
 import { getRPCErrorMessage } from "../Common/error"
 import { ipfsGetContent } from "../Common/Ipfs"
 
-interface EmployeeCardDisplayProps {
+interface MemberCardDisplayProps {
     tokenId: string
 }
 
-const EmployeeCardImageDisplay = ({ tokenId }: EmployeeCardDisplayProps ) => {
+const MemberCardImageDisplay = ({ tokenId }: MemberCardDisplayProps ) => {
     const { state: { web3, contract, accounts } } = useEthContext();
 
     const [cardImage, setCardImage] = useState('');
@@ -50,4 +50,4 @@ const EmployeeCardImageDisplay = ({ tokenId }: EmployeeCardDisplayProps ) => {
     )
 }
 
-export default EmployeeCardImageDisplay
+export default MemberCardImageDisplay

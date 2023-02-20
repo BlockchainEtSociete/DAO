@@ -5,13 +5,13 @@ import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import useEthContext from "../../hooks/useEthContext";
 import SnackbarAlert from "../Common/SnackbarAlert";
-import EmployeeCardProfile from "./EmployeeCardProfile";
+import MemberCardProfile from "./MemberCardProfile";
 
-interface EmployeeCardManageProps {
+interface MemberCardManageProps {
     tokenId: string;
 }
 
-const EmployeeCardManage = ({tokenId}: EmployeeCardManageProps) => {
+const MemberCardManage = ({tokenId}: MemberCardManageProps) => {
     const { state: { contract, accounts, web3 } } = useEthContext()
     const [endDate, setEndDate] = useState<Dayjs | null>(dayjs())
     const [endTime, setEndTime] = useState(0)
@@ -23,7 +23,7 @@ const EmployeeCardManage = ({tokenId}: EmployeeCardManageProps) => {
 
     useEffect(() => {
         (async () => {
-            const cardEndTime = await contract.methods.getEmployeeCardEndTime(tokenId).call({from: accounts[0]})
+            const cardEndTime = await contract.methods.getMemberCardEndTime(tokenId).call({from: accounts[0]})
             setEndTime(+cardEndTime)
         })()
     }, [accounts, contract, tokenId])
@@ -36,11 +36,11 @@ const EmployeeCardManage = ({tokenId}: EmployeeCardManageProps) => {
         if (endDate) {
             const endTime: number = endDate.unix();
 
-            const invalidateCardCall = await contract.methods.invalidateEmployeeCard(web3.utils.toBN(tokenId), web3.utils.toBN(endTime)).send({ from: accounts[0] })
-            const endTimeFromEvent = invalidateCardCall.events.EmployeeCardEnded.returnValues.endTime
+            const invalidateCardCall = await contract.methods.invalidateMemberCard(web3.utils.toBN(tokenId), web3.utils.toBN(endTime)).send({ from: accounts[0] })
+            const endTimeFromEvent = invalidateCardCall.events.MemberCardEnded.returnValues.endTime
 
             if (+endTimeFromEvent === endTime) {
-                setMessage(`The employee card invalidation request on ${endDate.format('DD/MM/YYYY')} has been taken in account`)
+                setMessage(`The member card invalidation request on ${endDate.format('DD/MM/YYYY')} has been taken in account`)
                 setSeverity('success')
                 setOpen(true)
 
@@ -58,20 +58,20 @@ const EmployeeCardManage = ({tokenId}: EmployeeCardManageProps) => {
 
     return (
         <>
-        <EmployeeCardProfile tokenId={tokenId} cardStatus={isCardValid} />
+        <MemberCardProfile tokenId={tokenId} cardStatus={isCardValid} />
         <p>&nbsp;</p>
         {endTime === 0 &&
         <div>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DesktopDatePicker
-                label="End date"
+                label="Date de fin d'adhésion"
                 inputFormat="DD/MM/YYYY"
                 value={endDate}
                 onChange={handleEndDateChange}
                 renderInput={(params) => <TextField {...params} />}
                 />
             </LocalizationProvider>
-            <Button onClick={handleInvalidateCard}>Invalidate the card</Button>
+            <Button onClick={handleInvalidateCard}>Invalider la carte</Button>
         </div>
         }
         <SnackbarAlert open={open} setOpen={setOpen} message={message} severity={severity} />
@@ -79,4 +79,4 @@ const EmployeeCardManage = ({tokenId}: EmployeeCardManageProps) => {
     )
 }
 
-export default EmployeeCardManage
+export default MemberCardManage

@@ -5,32 +5,26 @@ const actions = {
 
 const initialState: EthContextState = {
   cardArtifact: null,
-  widArtifact: null,
   governanceArtifact: null,
   web3: null,
   accounts: [],
   networkID: -1,
   contract: null,
-  widContract: null,
   governanceContract: null,
   owner: null,
-  widOwner: null,
   governanceOwner: null,
   transactionHash: '',
 };
 
 export interface EthContextState {
   cardArtifact: any;
-  widArtifact: any;
   governanceArtifact: any;
   web3: any;
   accounts: any[];
   networkID: number;
   contract: any;
-  widContract: any;
   governanceContract: any;
   owner: any;
-  widOwner: any;
   governanceOwner: any;
   transactionHash: string;
 }

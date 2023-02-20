@@ -13,9 +13,9 @@ export interface SessionDetail {
 }
 
 export const SessionStatus = [
-    'Pending',
-    'In progress',
-    'Ended'
+    'En attente',
+    'En cours',
+    'Terminée'
 ]
 
 export enum SessionStatusId {

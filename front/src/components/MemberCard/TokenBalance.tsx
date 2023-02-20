@@ -28,7 +28,7 @@ const TokenBalance = ({ account }: TokenBalanceProps) => {
 
   return (
     <p>
-      The entered wallet address has already {tokenBalance ?? 0} employee card
+      L'adresse renseignée dispose actuellement de {tokenBalance ?? 0} carte de membre
     </p>
   );
 };

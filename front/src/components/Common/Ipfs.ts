@@ -4,18 +4,20 @@ import { CID, create } from 'ipfs-http-client'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import all from 'it-all'
 
-const auth =
-    'Basic ' + btoa('2GE57JSYAYoTaIBw6HATXYyJWlM:2c68d980bee6d3c9e46c53d6ca5b0db0');
+const credentials = process.env.REACT_APP_IPFS_CREDENTIALS;
+
+
+const requestHeaders: any = {};
+
+if (credentials) {
+    requestHeaders.authorization = 'Basic ' + btoa(credentials);
+}
 
 const ipfs = create({
-    host: 'ipfs.infura.io', 
-    port: 5001,
-    /*host: 'localhost',
-    port: 5001,*/
+    host: process.env.REACT_APP_IPFS_HOST ?? 'localhost', 
+    port: parseInt(process.env.REACT_APP_IPFS_PORT ?? '5001'),
     protocol: 'https', 
-    headers: {
-        authorization: auth,
-    }
+    headers: requestHeaders,
 });
 
 export const ipfsGetContent = async (tokenUri: string) => {

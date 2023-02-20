@@ -6,8 +6,8 @@ import "./token/ERC5484/ERC5484.sol";
 
 /// @title An SBT for professionnal decentralized identity and proof of experience.
 /// @author Bertrand Presles
-/// @notice You can use this contract to generate digital ids for your employees that can also be used as proof of their work in your company
-contract EmployeeCard is ERC5484 {
+/// @notice You can use this contract to generate digital ids for your members that can also be used as proof of their work in your company
+contract MemberCard is ERC5484 {
 
   /// @notice Mapping for token URIs
   mapping(uint256 => string) private _tokenURIs;
@@ -18,9 +18,9 @@ contract EmployeeCard is ERC5484 {
   // Event when tokens are sent.
   event TokenReceived(address sender, uint256 amount);
   event CallReceived(address sender, uint256 amount, bytes data);
-  event EmployeeCardMinted(address employee, uint256 tokenId);
-  event VacationRightsCalculated(address employee);
-  event EmployeeCardEnded(uint256 tokenId, uint256 endTime);
+  event MemberCardMinted(address member, uint256 tokenId);
+  event VacationRightsCalculated(address member);
+  event MemberCardEnded(uint256 tokenId, uint256 endTime);
 
   constructor(string memory name, string memory symbol) ERC5484(name, symbol) {}
 
@@ -42,34 +42,34 @@ contract EmployeeCard is ERC5484 {
       _tokenURIs[tokenId] = uri;
   }
 
-  /// @notice Mint a new employee card Consensual SBT token.
+  /// @notice Mint a new member card Consensual SBT token.
   /// @param _recipient Recipient address.
   /// @param _tokenURI The token URI.
-  /// emit EmployeeCardMinted event when card is minted.
+  /// emit MemberCardMinted event when card is minted.
   function mint(address _recipient, string calldata _tokenURI) external onlyOwner {
-    require(balanceOf(_recipient) == 0, "An employee can only have 1 token");
+    require(balanceOf(_recipient) == 0, "An member can only have 1 token");
 
     uint256 tokenId = this.totalSupply() + 1; // Avoid using token id 0.
     _safeMint(_recipient, tokenId, BurnAuth.Both);
 
-    require(_exists(tokenId), "EmployeeCard: token generation failed");
+    require(_exists(tokenId), "MemberCard: token generation failed");
     _setTokenURI(tokenId, _tokenURI);
 
-    emit EmployeeCardMinted(_recipient, tokenId);
+    emit MemberCardMinted(_recipient, tokenId);
 
     _approve(owner(), tokenId);
   }
 
-  /// @notice Gets the employee card id.
-  /// @param employee Employee address.
-  /// @return The employee card id.
-  function getEmployeeCardId(address employee) public view returns (uint256) {
-    require(0 < this.balanceOf(employee), "EmployeeCard: This address doesn't have any employee card.");
+  /// @notice Gets the member card id.
+  /// @param member Member address.
+  /// @return The member card id.
+  function getMemberCardId(address member) public view returns (uint256) {
+    require(0 < this.balanceOf(member), "MemberCard: This address doesn't have any member card.");
 
-    uint256 employeeTokenId = tokenOfOwnerByIndex(employee, 0);
-    _requireMinted(employeeTokenId);
+    uint256 memberTokenId = tokenOfOwnerByIndex(member, 0);
+    _requireMinted(memberTokenId);
 
-    return employeeTokenId;
+    return memberTokenId;
   }
 
   /// @notice Returns if the SBT is still valid.
@@ -81,9 +81,9 @@ contract EmployeeCard is ERC5484 {
     return _tokenEndTimes[tokenId] == 0 || _tokenEndTimes[tokenId] >= block.timestamp;
   }
 
-  /// @notice Gets an employee card SBT end time.
+  /// @notice Gets an member card SBT end time.
   /// @return End time in unix timestamp format. It returns 0 if the card doesn't have end time yet.
-  function getEmployeeCardEndTime(uint256 tokenId) external view returns(uint256) {
+  function getMemberCardEndTime(uint256 tokenId) external view returns(uint256) {
      _requireMinted(tokenId);
 
      return _tokenEndTimes[tokenId];
@@ -92,24 +92,24 @@ contract EmployeeCard is ERC5484 {
   /// @notice Invalidates an SBT token.
   /// @dev Saves the end date (in unix timestamp format) in _tokenEndTimes mapping.
   /// @param tokenId The token id to invalidate.
-  function invalidateEmployeeCard(uint256 tokenId, uint256 endTime) external onlyOwner {
+  function invalidateMemberCard(uint256 tokenId, uint256 endTime) external onlyOwner {
      _requireMinted(tokenId);
-    require(endTime >= block.timestamp, "EmployeeCard: you must specify a end time in the future");
+    require(endTime >= block.timestamp, "MemberCard: you must specify a end time in the future");
     _tokenEndTimes[tokenId] = endTime;
 
-    emit EmployeeCardEnded(tokenId, endTime);
+    emit MemberCardEnded(tokenId, endTime);
   }
 
   /// @notice Burns a card.
-  /// @param employee Current holder of the card.
-  function burnCard(address employee) external onlyOwner {
-    uint256 employeeTokenId = getEmployeeCardId(employee);
+  /// @param member Current holder of the card.
+  function burnCard(address member) external onlyOwner {
+    uint256 memberTokenId = getMemberCardId(member);
 
-    _burn(employeeTokenId);
+    _burn(memberTokenId);
 
     // Clear metadata (if any)
-    if (bytes(_tokenURIs[employeeTokenId]).length != 0) {
-        delete _tokenURIs[employeeTokenId];
+    if (bytes(_tokenURIs[memberTokenId]).length != 0) {
+        delete _tokenURIs[memberTokenId];
     }
   }
 }
