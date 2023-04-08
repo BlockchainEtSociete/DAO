@@ -48,7 +48,7 @@ hardhat (Smart Contract)
 To run the tests, you'll need to execute the following commands to install the required dependencies:
 
 ```bash
-$ git clone https://github.com/bpresles/Alyra-WorkID.git
+$ git clone https://github.com/BlockchainEtSociete/DAO.git
 $ yarn install
 ```
 
