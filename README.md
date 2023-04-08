@@ -4,8 +4,6 @@
 - [Project](#bsdao-)
   - [Table of Contents](#table-of-contents)
   - [Presentation](#presentation)
-  - [Live demo](#live-demo)
-    - [Public deployment](#public-deployment)
   - [Structure](#structure)
   - [Installation](#installation)
   - [Commands](#commands)
