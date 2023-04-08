@@ -19,7 +19,7 @@
 
 <a name="presentation"></a>
 ## Presentation
-This project allows to manage tour membership to B&S. It also gives you access to thé association services using a secure SBT based authentication mechanism, and rights to participate at the association. 
+This project allows to manage tour membership to B&S. It also gives you access to the association services using a secure SBT based authentication mechanism, and rights to participate at the association. 
 
 <a name="structure"></a>
 ## Structure
