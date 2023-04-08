@@ -1,7 +1,7 @@
 # Blockchain & Société DAO [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Table of Contents
-- [Projdct ](#bsdao-)
+- [Project](#bsdao-)
   - [Table of Contents](#table-of-contents)
   - [Presentation](#presentation)
   - [Live demo](#live-demo)
