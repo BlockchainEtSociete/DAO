@@ -16,7 +16,7 @@ if (credentials) {
 const ipfs = create({
     host: process.env.REACT_APP_IPFS_HOST ?? 'localhost', 
     port: parseInt(process.env.REACT_APP_IPFS_PORT ?? '5001'),
-    protocol: 'https', 
+    protocol: process.env.REACT_APP_IPFS_PROTOCOL ?? 'https', 
     headers: requestHeaders,
 });
 
